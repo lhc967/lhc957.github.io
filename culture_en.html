@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dialect Atlas - YanHe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://assets.pyecharts.org/assets/maps/china.js"></script>
+
+    <style>
+        :root { --primary: #0052cc; --accent: #ffab00; --dark: #091e42; --bg-light: #f4f5f7; }
+        body {
+            font-family: 'Inter', sans-serif;
+            padding-top: 76px;
+            background: var(--bg-light);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar-custom { background: rgba(255,255,255,0.95); border-bottom: 1px solid #eaeaea; height: 76px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .navbar-brand { font-weight: 900; font-size: 1.6rem; color: var(--primary) !important; letter-spacing: -0.5px; }
+        .nav-link { font-weight: 600; color: #505f79 !important; padding: 8px 15px !important; }
+        .nav-link.active { color: var(--primary) !important; }
+        .btn-nav-action { background: var(--primary); color: #fff; padding: 8px 20px; border-radius: 4px; font-weight: 600; text-decoration: none; }
+
+        /* Map Container */
+        .map-wrapper { width: 100%; height: calc(100vh - 76px); position: relative; background: #eef2f6; }
+
+        /* Controls */
+        .mode-switch {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 50;
+            background: #fff; padding: 5px; border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex; gap: 5px;
+        }
+        .mode-btn {
+            border: none; padding: 8px 24px; border-radius: 25px; font-weight: 600; font-size: 0.9rem;
+            background: transparent; color: #6b778c; transition: 0.3s;
+        }
+        .mode-btn.active { background: #ebecf0; color: var(--dark); }
+        .mode-btn.pro-active { background: var(--dark); color: var(--accent); box-shadow: 0 4px 12px rgba(9, 30, 66, 0.3); }
+
+        /* Legend */
+        .legend-card {
+            position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px); padding: 15px; border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); z-index: 40; min-width: 180px;
+        }
+        .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.85rem; font-weight: 600; color: #42526e; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-user { background: #ff5630; box-shadow: 0 0 0 3px rgba(255, 86, 48, 0.2); animation: pulse 2s infinite; }
+        .dot-spot { background: var(--primary); }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* Drawer */
+        .drawer {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 75vh;
+            background: #fff; border-radius: 24px 24px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            transform: translateY(110%); transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            z-index: 100; display: flex; flex-direction: column; overflow: hidden;
+        }
+        .drawer.show { transform: translateY(0); }
+
+        .drawer-hero {
+            height: 180px; background-size: cover; background-position: center; position: relative; color: #fff;
+            display: flex; align-items: flex-end; padding: 20px; flex-shrink: 0;
+        }
+        .drawer-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.8)); }
+        .hero-content { position: relative; z-index: 2; width: 100%; }
+        .hero-title { font-size: 2rem; font-weight: 800; margin-bottom: 5px; }
+        .btn-close-custom {
+            position: absolute; top: 15px; right: 15px; width: 36px; height: 36px;
+            background: rgba(0,0,0,0.3); border-radius: 50%; color: #fff; display: flex;
+            align-items: center; justify-content: center; cursor: pointer; z-index: 10;
+        }
+
+        .nav-tabs-custom { display: flex; border-bottom: 1px solid #ebecf0; padding: 0 20px; background: #fff; }
+        .tab-link {
+            padding: 15px 20px; font-weight: 600; color: #6b778c; cursor: pointer; border-bottom: 3px solid transparent; font-size: 0.95rem;
+        }
+        .tab-link.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-link.pro-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .drawer-body { flex: 1; overflow-y: auto; padding: 25px; background: #fff; }
+        .tab-pane { display: none; animation: fadeIn 0.3s; }
+        .tab-pane.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Content Items */
+        .culture-item {
+            display: flex; gap: 15px; border: 1px solid #ebecf0; border-radius: 12px; padding: 15px;
+            margin-bottom: 15px; align-items: center; transition: 0.2s;
+        }
+        .culture-item:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .culture-thumb { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
+        .dialect-word { font-weight: 800; font-size: 1.1rem; color: var(--primary); margin-right: 8px; }
+
+        .chat-container { background: #f4f5f7; border-radius: 12px; padding: 20px; position: relative; }
+        .chat-bubble { max-width: 85%; padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; font-size: 0.95rem; position: relative; }
+        .chat-npc { background: #fff; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .chat-user { background: #deebff; color: #0052cc; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 2px; }
+        .highlight { color: #d93535; font-weight: 700; background: rgba(217, 53, 53, 0.1); padding: 0 4px; border-radius: 4px; }
+
+        .pro-blur { filter: blur(5px); opacity: 0.6; pointer-events: none; user-select: none; }
+        .lock-overlay {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 10;
+            background: rgba(255,255,255,0.4); backdrop-filter: blur(2px);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="index_en.html">YanHe</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navEn">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navEn">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="index_en.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="education_en.html">Courses</a></li>
+                    <li class="nav-item"><a class="nav-link" href="service_en.html">Freelance</a></li>
+                    <li class="nav-item"><a class="nav-link" href="story_en.html">Community</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="culture_en.html">Map</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="culture.html" class="nav-link px-0">中文版</a>
+                    <a href="login_en.html" class="btn-nav-action">Log in</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mode-switch">
+        <button class="mode-btn active" id="btnStd" onclick="togglePro(false)">Explorer</button>
+        <button class="mode-btn" id="btnPro" onclick="togglePro(true)">Pro Challenge</button>
+    </div>
+
+    <div class="legend-card d-none d-md-block">
+        <div class="legend-item"><span class="dot dot-user"></span> Your Location</div>
+        <div class="legend-item"><span class="dot dot-spot"></span> Dialect Hotspot</div>
+        <div class="mt-2 text-muted" style="font-size: 0.75rem;">Click cities to explore</div>
+    </div>
+
+    <div class="map-wrapper">
+        <div id="china-map" style="width: 100%; height: 100%;"></div>
+    </div>
+
+    <div class="drawer" id="drawer">
+        <div class="drawer-hero" id="heroBg" style="background-image: url('');">
+            <div class="btn-close-custom" onclick="closeDrawer()"><i class="bi bi-x-lg"></i></div>
+            <div class="hero-content">
+                <h2 class="hero-title" id="dCity">Loading...</h2>
+                <div class="text-white-50 small" id="dTags"></div>
+            </div>
+        </div>
+
+        <div class="nav-tabs-custom">
+            <div class="tab-link active" onclick="switchTab('culture', this)">Culture & Vocab</div>
+            <div class="tab-link pro-tab" onclick="switchTab('scenario', this)">
+                <i class="bi bi-lock-fill small" id="lockIcon"></i> Survival Mode
+            </div>
+        </div>
+
+        <div class="drawer-body">
+            <div id="tab-culture" class="tab-pane active">
+                <p class="text-muted" style="line-height: 1.6;" id="dIntro"></p>
+                <h6 class="fw-bold mt-4 mb-3 text-dark text-uppercase" style="letter-spacing: 1px; font-size: 0.8rem;">Must-Know Vocabulary</h6>
+                <div id="cultureList"></div>
+            </div>
+
+            <div id="tab-scenario" class="tab-pane">
+                <div class="chat-container">
+                    <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                        <strong id="sTitle">Scenario Loading...</strong>
+                        <span class="badge bg-warning text-dark">Level 2</span>
+                    </div>
+                    <div id="scenarioContent" class="pro-blur"></div>
+                    <div id="proLock" class="lock-overlay">
+                        <div class="bg-white p-4 rounded-4 shadow text-center border">
+                            <i class="bi bi-stars fs-1 text-warning mb-2"></i>
+                            <h5 class="fw-bold">Unlock Pro Mode</h5>
+                            <p class="small text-muted mb-3">Access real-world dialect scenarios.</p>
+                            <button class="btn btn-dark btn-sm rounded-pill w-100" onclick="togglePro(true)">Upgrade Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Data ---
+        const cityData = {
+            'Chengdu': {
+                city: 'Chengdu (Sichuan)', tags: 'Southwest Mandarin • Spicy • Pandas',
+                bg: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=600',
+                intro: 'Sichuanese is famous for its humorous tone. Life in Chengdu revolves around hotpot and tea houses.',
+                cultureItems: [
+                    { title: 'Hotpot', img: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=200', word: 'Ba Shi', desc: 'Means "Awesome" or "Comfortable".' },
+                    { title: 'Tea House', img: 'https://images.unsplash.com/photo-1557992260-ec58e38d363c?w=200', word: 'Long Men Zhen', desc: 'Means "Chitchat" or "Gossip".' }
+                ],
+                scenario: {
+                    title: 'Ordering Hotpot',
+                    chats: [
+                        {role: 'npc', text: 'Hello! How many people?'},
+                        {role: 'user', text: 'Three. Outside please.'},
+                        {role: 'npc', text: '<span class="highlight">Yao De (OK)</span>. What soup base?'},
+                        {role: 'user', text: 'Half-half pot. <span class="highlight">Wei La (Mild)</span> please!'}
+                    ]
+                }
+            },
+            'Shanghai': {
+                city: 'Shanghai', tags: 'Wu Dialect • The Bund • Modern',
+                bg: 'https://images.unsplash.com/photo-1548919973-5cef591cdbc9?w=600',
+                intro: 'Shanghainese (Wu dialect) sounds soft but is spoken rapidly. It retains ancient voiced consonants.',
+                cultureItems: [
+                    { title: 'Dumpling', img: 'https://images.unsplash.com/photo-1563245372-f21720e38c4d?w=200', word: 'Mi Dao', desc: 'Means "Taste" or "Flavor".' },
+                    { title: 'Greeting', img: 'https://images.unsplash.com/photo-1505991754094-9c87895e6e8e?w=200', word: 'Nong Hao', desc: 'The standard "Hello".' }
+                ],
+                scenario: {
+                    title: 'At the Store',
+                    chats: [
+                        {role: 'npc', text: 'That will be 15.5 RMB.'},
+                        {role: 'user', text: 'Can I use <span class="highlight">WeChat Pay</span>?'},
+                        {role: 'npc', text: 'Sure. Need a <span class="highlight">bag</span>?'},
+                        {role: 'user', text: '<span class="highlight">Viau (No need)</span>, thanks.'}
+                    ]
+                }
+            },
+            'Guangzhou': {
+                city: 'Guangzhou', tags: 'Cantonese • Dim Sum • Trade',
+                bg: 'https://images.unsplash.com/photo-1583248369069-9d91f1640fe6?w=600',
+                intro: 'Cantonese has 9 tones. Essential for "Yam Cha" (Morning Tea) culture.',
+                cultureItems: [
+                    { title: 'Dim Sum', img: 'https://images.unsplash.com/photo-1595052953507-954992524d77?w=200', word: 'Yam Cha', desc: 'Drinking tea and eating.' },
+                    { title: 'Politeness', img: 'https://images.unsplash.com/photo-1562967663-8a9d18f50c76?w=200', word: 'Mm Goi', desc: 'Thank you (for service).' }
+                ],
+                scenario: {
+                    title: 'Morning Tea',
+                    chats: [
+                        {role: 'npc', text: 'Sir, what tea would you like?'},
+                        {role: 'user', text: '<span class="highlight">Pu-erh</span>, please.'},
+                        {role: 'npc', text: 'Anything to eat?'},
+                        {role: 'user', text: 'One basket of <span class="highlight">Shrimp Dumplings</span>.'}
+                    ]
+                }
+            }
+        };
+
+        // --- Map Setup ---
+        var myChart = echarts.init(document.getElementById('china-map'));
+
+        // Data with English Names
+        var dialectPoints = [
+            {name: 'Chengdu', value: [104.06, 30.67]},
+            {name: 'Shanghai', value: [121.47, 31.23]},
+            {name: 'Guangzhou', value: [113.26, 23.12]}
+        ];
+        var userLocation = [{name: 'Beijing', value: [116.40, 39.90]}];
+
+        var option = {
+            geo: {
+                map: 'china', roam: true, zoom: 1.2,
+                label: { show: false }, // Hide Chinese province names
+                itemStyle: { areaColor: '#e3e8f0', borderColor: '#fff' },
+                emphasis: { itemStyle: { areaColor: '#d0dbe7', borderColor: '#fff' }, label: { show: false } }
+            },
+            series: [
+                {
+                    name: 'Dialects', type: 'effectScatter', coordinateSystem: 'geo',
+                    data: dialectPoints,
+                    symbolSize: 15, itemStyle: { color: '#0052cc' },
+                    rippleEffect: {brushType:'stroke', scale:4},
+                    // KEY CHANGE: Show labels in English
+                    label: {
+                        show: true, formatter: '{b}', position: 'right',
+                        color: '#0052cc', fontWeight: 'bold', fontSize: 12,
+                        backgroundColor: 'rgba(255,255,255,0.7)', padding: [2, 4], borderRadius: 4
+                    }
+                },
+                {
+                    name: 'User', type: 'effectScatter', coordinateSystem: 'geo',
+                    data: userLocation,
+                    symbolSize: 15, itemStyle: { color: '#ff5630' },
+                    rippleEffect: {color:'#ff5630', brushType:'stroke', scale:6},
+                    label: {
+                        show: true, formatter: 'You', position: 'right',
+                        color: '#ff5630', fontWeight: 'bold'
+                    }
+                }
+            ]
+        };
+        myChart.setOption(option);
+
+        // --- Logic ---
+        myChart.on('click', function(params) {
+            if(params.seriesIndex === 0) {
+                renderDrawer(params.data.name);
+                document.getElementById('drawer').classList.add('show');
+            }
+        });
+
+        function renderDrawer(cityName) {
+            const data = cityData[cityName] || cityData['Chengdu'];
+            document.getElementById('heroBg').style.backgroundImage = `url('${data.bg}')`;
+            document.getElementById('dCity').innerText = data.city;
+            document.getElementById('dTags').innerText = data.tags;
+            document.getElementById('dIntro').innerText = data.intro;
+
+            document.getElementById('cultureList').innerHTML = data.cultureItems.map(item => `
+                <div class="culture-item">
+                    <img src="${item.img}" class="culture-thumb">
+                    <div>
+                        <div class="fw-bold mb-1">${item.title}</div>
+                        <div><span class="dialect-word">${item.word}</span> <i class="bi bi-volume-up-fill text-primary" style="cursor:pointer"></i></div>
+                        <div class="small text-muted mt-1">${item.desc}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('sTitle').innerText = data.scenario.title;
+            document.getElementById('scenarioContent').innerHTML = data.scenario.chats.map(chat => `
+                <div class="chat-bubble ${chat.role==='user'?'chat-user':'chat-npc'}">${chat.text}</div>
+            `).join('');
+
+            switchTab('culture', document.querySelectorAll('.tab-link')[0]);
+        }
+
+        function closeDrawer() { document.getElementById('drawer').classList.remove('show'); }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-pane').forEach(el=>el.classList.remove('active'));
+            document.getElementById('tab-'+tabId).classList.add('active');
+            document.querySelectorAll('.tab-link').forEach(el=>el.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function togglePro(active) {
+            const btnStd = document.getElementById('btnStd');
+            const btnPro = document.getElementById('btnPro');
+            const lock = document.getElementById('proLock');
+            const content = document.getElementById('scenarioContent');
+            const icon = document.getElementById('lockIcon');
+
+            if(active) {
+                btnStd.classList.remove('active');
+                btnPro.classList.add('pro-active');
+                if(lock) lock.style.display = 'none';
+                if(content) content.classList.remove('pro-blur');
+                if(icon) icon.className = 'bi bi-unlock-fill small text-success';
+            } else {
+                btnStd.classList.add('active');
+                btnPro.classList.remove('pro-active');
+                if(lock) lock.style.display = 'flex';
+                if(content) content.classList.add('pro-blur');
+                if(icon) icon.className = 'bi bi-lock-fill small';
+            }
+        }
+
+        window.addEventListener('resize', () => myChart.resize());
+    </script>
+</body>
+</html>

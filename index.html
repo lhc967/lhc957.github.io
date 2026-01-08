@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>言禾 YanHe - 国际中文教育互联平台</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #004aad; --accent: #ff6b00; --dark-blue: #003366; --bg-light: #f8faff; }
+        body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; padding-top: 70px; background: var(--bg-light); }
+
+        /* --- 1. 高级感导航栏 --- */
+        .navbar-custom {
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.03); height: 70px; z-index: 1000;
+        }
+        .navbar-brand {
+            font-weight: 900; font-size: 1.6rem; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #004aad 0%, #0078ff 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .nav-link { font-weight: 600; color: #555 !important; padding: 8px 18px !important; border-radius: 30px; transition: all 0.3s; }
+        .nav-link:hover { color: var(--primary) !important; background: rgba(0, 74, 173, 0.06); }
+        .nav-link.active { color: #fff !important; background: var(--primary); box-shadow: 0 4px 10px rgba(0, 74, 173, 0.3); }
+
+        /* --- 2. Hero 区域 (视觉冲击) --- */
+        .hero {
+            background: linear-gradient(135deg, #f0f7ff 0%, #fff 100%);
+            padding: 60px 0 80px; position: relative; overflow: hidden;
+        }
+        /* 装饰背景 */
+        .hero::before {
+            content: ''; position: absolute; top: -50%; right: -20%; width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(0,74,173,0.05) 0%, transparent 70%);
+            border-radius: 50%; z-index: 0;
+        }
+
+        .hero-title {
+            font-size: 3rem; line-height: 1.2; font-weight: 900; color: #111; margin-bottom: 20px; position: relative; z-index: 1;
+        }
+        .hero-title span { color: var(--primary); }
+
+        .hero-desc { font-size: 1.1rem; color: #666; margin-bottom: 35px; position: relative; z-index: 1; max-width: 500px; }
+
+        .badge-official {
+            background: #fff; border: 1px solid #e0e0e0; color: #333;
+            padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: bold;
+            display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            margin-right: 10px; margin-bottom: 15px;
+        }
+
+        /* --- 3. 核心数据条 (悬浮效果) --- */
+        .stats-bar {
+            background: linear-gradient(135deg, #004aad 0%, #003366 100%);
+            color: #fff; padding: 35px 0; border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 74, 173, 0.25);
+            margin-top: 30px; position: relative; z-index: 2;
+        }
+        .stat-num { font-size: 32px; font-weight: 800; display: block; line-height: 1; margin-bottom: 5px; }
+        .stat-desc { font-size: 13px; opacity: 0.8; }
+
+        /* --- 4. 业务卡片矩阵 (可点击) --- */
+        .biz-card {
+            background: #fff; border-radius: 16px; padding: 30px; height: 100%;
+            border: 1px solid #f0f0f0; transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            cursor: pointer; text-decoration: none; display: block; color: inherit;
+            position: relative; overflow: hidden;
+        }
+        .biz-card:hover {
+            transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.08); border-color: var(--primary);
+        }
+        .biz-icon {
+            width: 60px; height: 60px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            font-size: 28px; margin-bottom: 20px; transition: 0.3s;
+        }
+        .biz-card:hover .biz-icon { transform: scale(1.1) rotate(5deg); }
+
+        /* 卡片配色 */
+        .card-story .biz-icon { background: #fff0f0; color: #dc3545; }
+        .card-edu .biz-icon { background: #eef4ff; color: var(--primary); }
+        .card-task .biz-icon { background: #fff8e1; color: #ffc107; }
+        .card-map .biz-icon { background: #e8f5e9; color: #198754; }
+
+        .biz-title { font-weight: 800; font-size: 1.2rem; margin-bottom: 8px; color: #333; }
+        .biz-sub { font-size: 0.9rem; color: #888; line-height: 1.5; }
+        .btn-arrow {
+            position: absolute; bottom: 25px; right: 25px; width: 30px; height: 30px; border-radius: 50%;
+            background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #aaa; transition: 0.3s;
+        }
+        .biz-card:hover .btn-arrow { background: var(--primary); color: #fff; }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.2rem; }
+            .stats-bar { padding: 25px 0; }
+            .stat-num { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="index.html">言禾 YanHe</a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="bi bi-list fs-1 text-primary"></i>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center gap-1">
+                    <li class="nav-item"><a class="nav-link active" href="index.html">首页</a></li>
+                    <li class="nav-item"><a class="nav-link" href="story.html">中国故事</a></li>
+                    <li class="nav-item"><a class="nav-link" href="education.html">教育云</a></li>
+                    <li class="nav-item"><a class="nav-link" href="service.html">任务大厅</a></li>
+                    <li class="nav-item"><a class="nav-link" href="culture.html">方言地图</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0 ms-lg-4">
+                    <a href="login.html" class="btn btn-outline-secondary rounded-pill btn-sm px-4 fw-bold">登录 / 注册</a>
+                    <a href="index_en.html" class="btn btn-primary rounded-pill btn-sm fw-bold px-3 shadow-sm border-0" style="background:var(--primary)">English</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="mb-4 animate-up">
+                        <span class="badge-official"><i class="bi bi-patch-check-fill text-primary"></i> 教育部产学研试点</span>
+                        <span class="badge-official"><i class="bi bi-heart-fill text-danger"></i> 乡村振兴重点项目</span>
+                    </div>
+
+                    <h1 class="hero-title animate-up" style="animation-delay: 0.1s;">
+                        连接全球语言<br>共享<span>中华智慧</span>
+                    </h1>
+
+                    <p class="hero-desc animate-up" style="animation-delay: 0.2s;">
+                        基于 AI Agent 与 GIS 技术的国际中文教育平台。<br>
+                        聚合全网优质课程，提供专家级众包翻译服务。
+                    </p>
+
+                    <div class="d-flex gap-3 mb-5 animate-up" style="animation-delay: 0.3s;">
+                        <a href="service.html" class="btn btn-primary rounded-pill px-4 py-3 fw-bold shadow-lg d-flex align-items-center gap-2">
+                            <i class="bi bi-briefcase-fill"></i> 发布/接取任务
+                        </a>
+                        <a href="education.html" class="btn btn-outline-dark rounded-pill px-4 py-3 fw-bold d-flex align-items-center gap-2">
+                            <i class="bi bi-mortarboard-fill"></i> 开始免费学习
+                        </a>
+                    </div>
+
+                    <div class="small text-muted border-top pt-3 d-flex flex-wrap gap-4 align-items-center animate-up" style="animation-delay: 0.4s;">
+                        <span><i class="bi bi-shield-lock-fill text-success"></i> 专利号：ZL2025100XXXX</span>
+                        <span><i class="bi bi-code-slash text-primary"></i> 软著号：2025SRXXXX</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 d-none d-lg-block text-center animate-up" style="animation-delay: 0.2s;">
+                    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                         class="img-fluid rounded-4 shadow-lg border border-4 border-white"
+                         style="transform: rotate(2deg);">
+                </div>
+            </div>
+
+            <div class="stats-bar animate-up" style="animation-delay: 0.5s;">
+                <div class="row text-center gy-4 gx-0">
+                    <div class="col-6 col-md-3 border-end border-white border-opacity-25">
+                        <span class="stat-num counter" data-target="28">0</span>
+                        <span class="stat-desc">覆盖国家/地区</span>
+                    </div>
+                    <div class="col-6 col-md-3 border-end-md border-white border-opacity-25">
+                        <span class="stat-num counter" data-target="12000">0</span>
+                        <span class="stat-desc">入驻语言专家</span>
+                    </div>
+                    <div class="col-6 col-md-3 border-end border-white border-opacity-25">
+                        <span class="stat-num">¥<span class="counter" data-target="86000">0</span></span>
+                        <span class="stat-desc">人均增收 (元)</span>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <span class="stat-num counter" data-target="5320">0</span>
+                        <span class="stat-desc">服务贫困学生</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-5 pb-5">
+        <div class="row g-4">
+
+            <div class="col-md-6 col-lg-3">
+                <a href="story.html" class="biz-card card-story">
+                    <div class="biz-icon"><i class="bi bi-camera-reels"></i></div>
+                    <div class="biz-title">中国故事</div>
+                    <div class="biz-sub">仿小红书社区，沉浸式了解真实中国文化。</div>
+                    <div class="btn-arrow"><i class="bi bi-arrow-right"></i></div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a href="education.html" class="biz-card card-edu">
+                    <div class="biz-icon"><i class="bi bi-mortarboard"></i></div>
+                    <div class="biz-title">智慧教育云</div>
+                    <div class="biz-sub">AI 辅助教学，结合艾宾浩斯记忆法。</div>
+                    <div class="btn-arrow"><i class="bi bi-arrow-right"></i></div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a href="service.html" class="biz-card card-task">
+                    <div class="biz-icon"><i class="bi bi-briefcase"></i></div>
+                    <div class="biz-title">任务大厅</div>
+                    <div class="biz-sub">双端登录系统，连接企业需求与高校人才。</div>
+                    <div class="btn-arrow"><i class="bi bi-arrow-right"></i></div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <a href="culture.html" class="biz-card card-map">
+                    <div class="biz-icon"><i class="bi bi-map"></i></div>
+                    <div class="biz-title">方言地图 Pro</div>
+                    <div class="biz-sub">GIS 可视化技术，抢救与保护方言文化。</div>
+                    <div class="btn-arrow"><i class="bi bi-arrow-right"></i></div>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-4 mt-auto text-center small">
+        <div class="container">
+            <p class="mb-1 fw-bold">言禾 YanHe International Education © 2026</p>
+            <div class="text-white-50">
+                京ICP备12345678号 | 2026“挑战杯”参赛作品
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 数字滚动特效 (Counter Animation)
+        document.addEventListener("DOMContentLoaded", () => {
+            const counters = document.querySelectorAll('.counter');
+
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const duration = 2000; // 动画时长 2秒
+                const increment = target / (duration / 16);
+
+                const updateCounter = () => {
+                    const c = +counter.innerText;
+                    if(c < target) {
+                        counter.innerText = Math.ceil(c + increment);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.innerText = target.toLocaleString(); // 添加千位分隔符
+                    }
+                };
+                updateCounter();
+            });
+        });
+    </script>
+    <style>
+        /* 简单的入场动画 */
+        .animate-up { animation: fadeInUp 0.8s ease forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    </style>
+</body>
+</html>

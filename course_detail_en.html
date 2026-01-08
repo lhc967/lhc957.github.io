@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Chinese - Course Detail</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #0052cc; --accent: #ffab00; --dark: #091e42; --bg-light: #f4f5f7; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            padding-top: 76px;
+            color: var(--dark);
+        }
+
+        /* Navbar */
+        .navbar-custom { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); height: 76px; z-index: 1000; }
+        .navbar-brand { font-weight: 900; font-size: 1.6rem; color: var(--primary) !important; letter-spacing: -0.5px; }
+        .nav-link { font-weight: 600; color: #505f79 !important; padding: 8px 15px !important; }
+        .nav-link:hover { color: var(--primary) !important; }
+        .btn-back { border: 1px solid #dfe1e6; color: #505f79; font-weight: 600; padding: 6px 16px; border-radius: 4px; transition: 0.2s; }
+        .btn-back:hover { background: #ebecf0; color: var(--dark); }
+
+        /* Breadcrumb */
+        .breadcrumb-bar { padding: 20px 0; font-size: 0.9rem; color: #6b778c; }
+        .breadcrumb-bar a { text-decoration: none; color: #6b778c; transition: 0.2s; }
+        .breadcrumb-bar a:hover { color: var(--primary); }
+
+        /* Video Player */
+        .video-wrapper {
+            background: #000; border-radius: 12px; overflow: hidden; position: relative;
+            aspect-ratio: 16/9; box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        .video-placeholder { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transition: opacity 0.5s; }
+
+        .play-overlay {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 10; transition: opacity 0.5s;
+            background: rgba(0,0,0,0.2);
+        }
+        .btn-play-big {
+            width: 80px; height: 80px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 32px; cursor: pointer; border: 2px solid rgba(255,255,255,0.6);
+            transition: all 0.3s;
+        }
+        .btn-play-big:hover { transform: scale(1.1); background: var(--primary); border-color: var(--primary); }
+
+        .video-playing-state {
+            position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: #fff; background: #000;
+        }
+
+        /* AI Tools (On Video) */
+        .ai-tools-overlay {
+            position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 20;
+        }
+        .ai-tool-badge {
+            background: rgba(0,0,0,0.7); color: #fff; padding: 6px 14px; border-radius: 30px;
+            font-size: 0.8rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 6px; transition: 0.3s;
+        }
+        .ai-tool-badge:hover { background: var(--primary); border-color: var(--primary); }
+        .ai-tool-badge.active { background: var(--primary); border-color: var(--primary); }
+
+        /* Course Info */
+        .course-header { margin-top: 30px; margin-bottom: 25px; }
+        .course-tag {
+            background: #deebff; color: var(--primary); padding: 4px 10px; border-radius: 4px;
+            font-size: 0.8rem; font-weight: 700; margin-right: 10px; text-transform: uppercase;
+        }
+        .course-title { font-size: 2rem; font-weight: 800; margin-top: 15px; margin-bottom: 15px; color: var(--dark); line-height: 1.2; }
+        .course-meta { font-size: 0.9rem; color: #6b778c; display: flex; gap: 25px; align-items: center; }
+
+        /* Tabs */
+        .nav-tabs-course { border-bottom: 1px solid #ebecf0; margin-bottom: 30px; display: flex; gap: 30px; }
+        .nav-link-course {
+            border: none; background: transparent; padding: 15px 0; font-weight: 600; color: #6b778c;
+            border-bottom: 3px solid transparent; cursor: pointer; font-size: 1rem;
+        }
+        .nav-link-course:hover { color: var(--primary); }
+        .nav-link-course.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        /* Syllabus List */
+        .chapter-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 18px;
+            border: 1px solid #ebecf0; margin-bottom: -1px; transition: 0.2s; cursor: pointer; background: #fff;
+        }
+        .chapter-item:first-child { border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        .chapter-item:last-child { border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+        .chapter-item:hover { background: #f4f5f7; }
+        .chapter-item.active { background: #e6effc; border-color: #b3d4ff; z-index: 1; }
+        .chapter-item.active .bi-play-circle { color: var(--primary); }
+        .chapter-title { font-weight: 600; color: var(--dark); }
+
+        /* Sidebar */
+        .sidebar-sticky { position: sticky; top: 100px; }
+        .enroll-card {
+            background: #fff; padding: 30px; border-radius: 8px;
+            border: 1px solid #ebecf0; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center;
+        }
+        .price-free { font-size: 2.5rem; font-weight: 800; color: #36b37e; letter-spacing: -1px; }
+
+        .btn-enroll {
+            width: 100%; background: #36b37e; color: #fff; border: none; padding: 14px;
+            border-radius: 6px; font-weight: 700; font-size: 1rem; margin-top: 20px;
+            transition: 0.2s;
+        }
+        .btn-enroll:hover { background: #2d9668; transform: translateY(-2px); }
+        .btn-enroll.enrolled { background: #ebecf0; color: #6b778c; cursor: default; transform: none; }
+
+        /* AI Note Card */
+        .ai-note-card {
+            background: linear-gradient(135deg, #fff 0%, #f4f5f7 100%); border: 1px solid #dfe1e6;
+            border-radius: 8px; padding: 25px; margin-top: 25px; position: relative;
+        }
+        .ai-note-badge {
+            position: absolute; top: -12px; right: 20px; background: var(--dark); color: var(--accent);
+            font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 800; text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container px-4">
+            <a class="navbar-brand" href="index_en.html">YanHe</a>
+            <div class="d-flex align-items-center ms-auto">
+                <a href="education_en.html" class="btn-back"><i class="bi bi-arrow-left"></i> Back to Courses</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="breadcrumb-bar">
+            <a href="index_en.html">Home</a> <i class="bi bi-chevron-right mx-2 small"></i>
+            <a href="education_en.html">Edu Cloud</a> <i class="bi bi-chevron-right mx-2 small"></i>
+            <span class="text-dark fw-bold">Business Chinese</span>
+        </div>
+
+        <div class="row g-5">
+            <div class="col-lg-8">
+
+                <div class="video-wrapper" id="videoArea">
+                    <div class="ai-tools-overlay">
+                        <div class="ai-tool-badge" onclick="toggleAI(this)" title="Live Bilingual Subtitles">
+                            <i class="bi bi-translate"></i> AI Subtitles
+                        </div>
+                        <div class="ai-tool-badge" onclick="toggleAI(this)" title="Auto-detect Key Terms">
+                            <i class="bi bi-lightning-fill"></i> Smart Highlights
+                        </div>
+                    </div>
+
+                    <img id="videoCover" src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&q=80" class="video-placeholder">
+                    <div id="playOverlay" class="play-overlay">
+                        <div class="btn-play-big" onclick="playVideo()">
+                            <i class="bi bi-play-fill" style="margin-left: 5px;"></i>
+                        </div>
+                        <div class="mt-3 text-white fw-bold">
+                            Lesson 1: Introduction
+                        </div>
+                    </div>
+
+                    <div id="playingState" class="video-playing-state">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-3 font-monospace">Loading Stream...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-header">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="course-tag">HSK Level 5</span>
+                        <span class="course-tag" style="background:#fff3cd; color:#856404">Business</span>
+                    </div>
+                    <h1 class="course-title">Business Chinese: Negotiation Skills & Etiquette</h1>
+                    <div class="course-meta">
+                        <span><i class="bi bi-star-fill text-warning"></i> 4.9 (1,208 reviews)</span>
+                        <span><i class="bi bi-person-fill"></i> 35k Enrolled</span>
+                        <span><i class="bi bi-clock"></i> 12h 30m Total</span>
+                    </div>
+                </div>
+
+                <div class="nav-tabs-course">
+                    <div class="nav-link-course active" onclick="switchTab('intro', this)">Overview</div>
+                    <div class="nav-link-course" onclick="switchTab('catalog', this)">Syllabus</div>
+                    <div class="nav-link-course" onclick="switchTab('ai', this)">
+                        <i class="bi bi-stars"></i> AI Tutor
+                    </div>
+                </div>
+
+                <div id="tab-intro" class="tab-pane d-block">
+                    <h4 class="fw-bold mb-3">What you'll learn</h4>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6"><i class="bi bi-check-circle-fill text-success me-2"></i> Master 50+ negotiation terms</div>
+                        <div class="col-md-6"><i class="bi bi-check-circle-fill text-success me-2"></i> Understanding "Mianzi" (Face)</div>
+                        <div class="col-md-6"><i class="bi bi-check-circle-fill text-success me-2"></i> Drafting standard contracts</div>
+                        <div class="col-md-6"><i class="bi bi-check-circle-fill text-success me-2"></i> Banquet etiquette & seating</div>
+                    </div>
+                    <h4 class="fw-bold mb-3">Description</h4>
+                    <p class="text-muted" style="line-height: 1.8;">
+                        Designed for advanced learners (HSK 4-5), this course bridges the gap between textbook Chinese and real-world business scenarios.
+                        <br><br>
+                        Powered by <strong>YanHe AI</strong>, you can simulate negotiations with a virtual partner to build confidence before your next meeting.
+                    </p>
+                </div>
+
+                <div id="tab-catalog" class="tab-pane d-none">
+                    <div class="chapter-item active" onclick="playChapter(this, 1)">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-play-circle fs-4 me-3 text-primary"></i>
+                            <div>
+                                <div class="chapter-title">01. The Chinese Negotiation Mindset</div>
+                                <div class="small text-muted">15:00 • Preview</div>
+                            </div>
+                        </div>
+                        <span class="badge bg-success text-white">Playing</span>
+                    </div>
+                    <div class="chapter-item" onclick="playChapter(this, 2)">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-play-circle fs-4 me-3 text-muted"></i>
+                            <div>
+                                <div class="chapter-title">02. Core Vocab: Quoting & Bargaining</div>
+                                <div class="small text-muted">22:30</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chapter-item" onclick="playChapter(this, 3)">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-play-circle fs-4 me-3 text-muted"></i>
+                            <div>
+                                <div class="chapter-title">03. Culture: The Art of the Banquet</div>
+                                <div class="small text-muted">18:45</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-ai" class="tab-pane d-none">
+                    <div class="bg-white border rounded-3 p-5 text-center">
+                        <i class="bi bi-robot fs-1 text-primary mb-3 d-block"></i>
+                        <h5 class="fw-bold">AI Tutor Standby</h5>
+                        <p class="text-muted mb-4">Complete the video lesson to unlock the AI Quiz and Roleplay mode.</p>
+                        <button class="btn btn-outline-primary rounded-pill px-4" onclick="alert('Please finish the video first.')">Start Quiz</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sidebar-sticky">
+
+                    <div class="enroll-card">
+                        <div class="price-free">Free</div>
+                        <div class="text-muted small text-decoration-line-through">Original $49.99</div>
+                        <div class="text-success small fw-bold mb-3 mt-1"><i class="bi bi-globe"></i> Education for All Initiative</div>
+
+                        <button class="btn-enroll" id="btnJoin" onclick="startLearning()">
+                            Enroll for Free
+                        </button>
+                        <div class="mt-3 small text-muted">
+                            <i class="bi bi-infinity me-1"></i> Full Lifetime Access<br>
+                            <i class="bi bi-award me-1"></i> Certificate of Completion
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 p-3 border rounded-3 bg-white mt-3">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ProfWang" width="50" class="rounded-circle">
+                        <div>
+                            <div class="fw-bold text-dark">Prof. Wang</div>
+                            <div class="small text-muted">PhD, Beijing Language Univ.</div>
+                        </div>
+                    </div>
+
+                    <div class="ai-note-card">
+                        <div class="ai-note-badge"><i class="bi bi-lightning-fill"></i> AI Generated</div>
+                        <h6 class="fw-bold mb-3">Key Takeaways</h6>
+                        <ul class="small text-muted ps-3 mb-0" style="line-height: 1.6;">
+                            <li>3 Elements: Timing, Location, People</li>
+                            <li>Key Phrase: "Can you come down a bit?"</li>
+                            <li>Culture: "Face" engineering in deals</li>
+                        </ul>
+                        <button class="btn btn-link btn-sm text-decoration-none p-0 mt-3 fw-bold" onclick="addNote()">
+                            <i class="bi bi-plus-circle"></i> Add to Smart Review
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="height: 100px;"></div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- 1. Tab Logic ---
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-pane').forEach(el => {
+                el.className = 'tab-pane d-none';
+            });
+            document.getElementById('tab-' + tabId).className = 'tab-pane d-block animation-fade';
+
+            document.querySelectorAll('.nav-link-course').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // --- 2. AI Toggle ---
+        function toggleAI(btn) {
+            btn.classList.toggle('active');
+            if(btn.classList.contains('active')){
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<span class="spinner-grow spinner-grow-sm text-light" style="width: 0.5rem; height: 0.5rem;"></span> Activating...';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                }, 800);
+            }
+        }
+
+        // --- 3. Enrollment (Free Flow) ---
+        function startLearning() {
+            const btn = document.getElementById('btnJoin');
+            btn.innerText = 'Processing...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert('🎉 Welcome Aboard!\nYou have successfully enrolled in this course.');
+                btn.innerText = 'Continue Learning';
+                btn.classList.add('enrolled');
+                btn.disabled = false;
+            }, 800);
+        }
+
+        // --- 4. Video Play Simulation ---
+        function playVideo() {
+            document.getElementById('videoCover').style.opacity = '0';
+            document.getElementById('playOverlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('videoCover').style.display = 'none';
+                document.getElementById('playOverlay').style.display = 'none';
+                document.getElementById('playingState').style.display = 'flex';
+            }, 500);
+        }
+
+        // --- 5. Chapter Switch ---
+        function playChapter(item, index) {
+            document.querySelectorAll('.chapter-item').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('i').classList.remove('text-primary');
+                el.querySelector('i').classList.add('text-muted');
+                const badge = el.querySelector('.badge');
+                if(badge) badge.remove();
+            });
+
+            item.classList.add('active');
+            item.querySelector('i').classList.remove('text-muted');
+            item.querySelector('i').classList.add('text-primary');
+
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-success text-white';
+            badge.innerText = 'Playing';
+            item.appendChild(badge);
+
+            playVideo();
+        }
+
+        // --- 6. AI Note ---
+        function addNote() {
+            alert('✅ Added!\nThis topic will appear in your "Edu Cloud" review dashboard.');
+        }
+    </script>
+</body>
+</html>

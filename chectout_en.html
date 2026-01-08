@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout - YanHe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #0052cc; --accent: #ffab00; --dark: #091e42; --bg-light: #f4f5f7; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            padding-top: 70px;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar-custom { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); height: 70px; }
+        .navbar-brand { font-weight: 900; font-size: 1.5rem; color: var(--primary) !important; letter-spacing: -0.5px; }
+
+        /* Demo Bar */
+        .demo-switcher {
+            background: #172b4d; color: #fff; padding: 10px; text-align: center; font-size: 0.85rem;
+        }
+        .demo-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;
+            padding: 4px 12px; border-radius: 4px; margin: 0 5px; cursor: pointer;
+        }
+        .demo-btn.active { background: var(--accent); border-color: var(--accent); color: #172b4d; font-weight: 700; }
+
+        /* Countdown */
+        .countdown-bar {
+            background: #fff3cd; color: #856404; text-align: center; font-size: 0.85rem; padding: 8px;
+            border-bottom: 1px solid #ffeeba;
+        }
+
+        /* Layout */
+        .checkout-container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+
+        /* Cards */
+        .pay-card {
+            background: #fff; border-radius: 8px; border: 1px solid #dfe1e6;
+            padding: 25px; margin-bottom: 20px; transition: all 0.3s;
+        }
+        .card-title-sm { font-size: 1rem; font-weight: 700; color: #172b4d; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Product */
+        .product-info { display: flex; gap: 20px; align-items: flex-start; }
+        .product-thumb { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; background: #eee; flex-shrink: 0; }
+        .product-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 5px; }
+        .product-desc { font-size: 0.9rem; color: #6b778c; line-height: 1.5; }
+        .tag-escrow { background: #e3fcef; color: #006644; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; display: inline-block; margin-bottom: 5px; }
+
+        /* Payment Methods */
+        .payment-method {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; border: 1px solid #dfe1e6; border-radius: 8px;
+            cursor: pointer; transition: 0.2s; margin-bottom: 12px;
+        }
+        .payment-method:hover { border-color: #b3d4ff; background: #f4f5f7; }
+        .payment-method.active { border-color: var(--primary); background: #deebff; }
+        .check-circle { color: #dfe1e6; font-size: 1.2rem; }
+        .payment-method.active .check-circle { color: var(--primary); }
+
+        /* Summary */
+        .price-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem; color: #505f79; }
+        .total-price { font-size: 1.8rem; font-weight: 800; color: var(--dark); }
+
+        /* Button */
+        .btn-pay {
+            background: #0052cc; color: #fff; border: none; width: 100%; padding: 14px;
+            font-size: 1rem; font-weight: 700; border-radius: 6px;
+            box-shadow: 0 4px 10px rgba(0, 82, 204, 0.2); transition: 0.2s;
+        }
+        .btn-pay:hover { background: #0747a6; transform: translateY(-1px); }
+
+        /* Success View */
+        .success-view { display: none; text-align: center; padding: 60px 20px; }
+        .success-icon {
+            width: 80px; height: 80px; background: #36b37e; color: #fff;
+            border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 40px; margin-bottom: 24px; animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes popIn { from{transform:scale(0);} to{transform:scale(1);} }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="index_en.html">YanHe</a>
+            <div class="ms-auto text-muted small d-flex align-items-center gap-2">
+                <i class="bi bi-shield-lock-fill text-success"></i> SSL Secure Checkout
+            </div>
+        </div>
+    </nav>
+
+    <div class="demo-switcher">
+        <span><i class="bi bi-eye"></i> Demo Mode:</span>
+        <button class="demo-btn active" onclick="switchScenario('membership')">Scenario A: Membership</button>
+        <button class="demo-btn" onclick="switchScenario('task')">Scenario B: Task Escrow</button>
+    </div>
+
+    <div class="countdown-bar">
+        <i class="bi bi-clock"></i> Price reserved for <strong id="timer">14:59</strong>
+    </div>
+
+    <div class="checkout-container" id="checkoutView">
+        <div class="row">
+
+            <div class="col-lg-8">
+                <div class="pay-card">
+                    <div class="card-title-sm">Order Details</div>
+                    <div class="product-info">
+                        <img id="pImg" src="https://images.unsplash.com/photo-1596797038530-2c107229654b?w=200" class="product-thumb">
+                        <div>
+                            <div class="product-title" id="pTitle">YanHe Pro Membership (Yearly)</div>
+                            <div class="product-desc" id="pDesc">
+                                Unlock 50+ Dialect Survival Modes | Unlimited AI Tuning<br>
+                                <span class="text-success mt-1 d-inline-block"><i class="bi bi-check-circle-fill"></i> 30-Day Money-Back Guarantee</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pay-card">
+                    <div class="card-title-sm">Payment Method</div>
+
+                    <div class="payment-method active" onclick="selectPay(this)">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-credit-card-2-front text-primary fs-4"></i>
+                            <div>
+                                <div class="fw-bold">Credit / Debit Card</div>
+                                <div class="small text-muted">Visa, MasterCard, Amex</div>
+                            </div>
+                        </div>
+                        <i class="bi bi-check-circle-fill check-circle"></i>
+                    </div>
+
+                    <div class="payment-method" onclick="selectPay(this)">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-paypal text-primary fs-4"></i>
+                            <div>
+                                <div class="fw-bold">PayPal</div>
+                                <div class="small text-muted">Safe & Fast</div>
+                            </div>
+                        </div>
+                        <i class="bi bi-circle check-circle"></i>
+                    </div>
+
+                    <div class="payment-method" onclick="selectPay(this)">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-wechat text-success fs-4"></i>
+                            <div>
+                                <div class="fw-bold">WeChat Pay</div>
+                                <div class="small text-muted">Cross-border payment</div>
+                            </div>
+                        </div>
+                        <i class="bi bi-circle check-circle"></i>
+                    </div>
+                </div>
+
+                <div class="pay-card" id="invoiceCard" style="display:none;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="needInvoice">
+                        <label class="form-check-label fw-bold" for="needInvoice">I need an invoice / receipt</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="pay-card sticky-top" style="top: 130px;">
+                    <div class="card-title-sm">Summary</div>
+
+                    <div id="priceDetails">
+                        </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between align-items-end mb-4">
+                        <span class="fw-bold">Total</span>
+                        <span class="total-price" id="totalPrice">$49.00</span>
+                    </div>
+
+                    <button class="btn-pay" onclick="handlePay()" id="btnPay">
+                        Pay $49.00
+                    </button>
+
+                    <div class="text-center mt-3 text-muted" style="font-size: 0.75rem;">
+                        <i class="bi bi-shield-check"></i> Secure 256-bit SSL Encrypted payment.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container success-view" id="successView">
+        <div class="success-icon"><i class="bi bi-check-lg"></i></div>
+        <h2 class="fw-bold mb-3" id="successTitle">Payment Successful!</h2>
+        <p class="text-muted mb-5" id="successDesc">Your Pro Membership is now active.</p>
+
+        <div class="d-flex justify-content-center gap-3">
+            <a href="service_en.html" class="btn btn-outline-secondary rounded-pill px-4">View Order</a>
+            <a href="education_en.html" class="btn btn-primary rounded-pill px-5 fw-bold">Continue</a>
+        </div>
+    </div>
+
+    <script>
+        // Data for Scenarios
+        const scenarios = {
+            'membership': {
+                img: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=200',
+                title: 'YanHe Pro Membership (Yearly)',
+                desc: 'Unlock 50+ Dialect Survival Modes | Unlimited AI Tuning<br><span class="text-success mt-1 d-inline-block"><i class="bi bi-check-circle-fill"></i> 30-Day Money-Back Guarantee</span>',
+                detailsHTML: `
+                    <div class="price-row"><span>Subtotal</span><span>$149.00</span></div>
+                    <div class="price-row text-success"><span>Student Discount</span><span>- $100.00</span></div>
+                    <div class="price-row text-muted"><span>Tax</span><span>$0.00</span></div>
+                `,
+                total: '$49.00',
+                btnText: 'Pay $49.00',
+                showInvoice: false,
+                successTitle: 'Welcome to Pro!',
+                successDesc: 'Your membership is active. Start exploring dialects now.'
+            },
+            'task': {
+                img: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=200',
+                title: 'Escrow: Legal Contract Translation',
+                desc: '<span class="tag-escrow"><i class="bi bi-shield-lock"></i> Funds Held in Escrow</span><br>Task ID: #88392<br>Funds released only upon approval.',
+                detailsHTML: `
+                    <div class="price-row"><span>Task Bounty</span><span>$200.00</span></div>
+                    <div class="price-row"><span>Platform Fee (5%)</span><span>$10.00</span></div>
+                    <div class="price-row text-primary"><span>Processing Fee</span><span>$5.00</span></div>
+                `,
+                total: '$215.00',
+                btnText: 'Deposit $215.00',
+                showInvoice: true,
+                successTitle: 'Funds Secured',
+                successDesc: 'Money is now held in escrow. Freelancer will be notified to start work.'
+            }
+        };
+
+        let currentScenario = 'membership';
+
+        function switchScenario(type) {
+            currentScenario = type;
+            const data = scenarios[type];
+
+            // Toggle active button
+            document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Fade effect
+            const container = document.getElementById('checkoutView');
+            container.style.opacity = '0.5';
+
+            setTimeout(() => {
+                // Update Content
+                document.getElementById('pImg').src = data.img;
+                document.getElementById('pTitle').innerText = data.title;
+                document.getElementById('pDesc').innerHTML = data.desc;
+                document.getElementById('priceDetails').innerHTML = data.detailsHTML;
+                document.getElementById('totalPrice').innerText = data.total;
+                document.getElementById('btnPay').innerText = data.btnText;
+
+                document.getElementById('invoiceCard').style.display = data.showInvoice ? 'block' : 'none';
+
+                container.style.opacity = '1';
+            }, 200);
+        }
+
+        function selectPay(element) {
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('.check-circle').classList.remove('bi-check-circle-fill');
+                el.querySelector('.check-circle').classList.add('bi-circle');
+            });
+            element.classList.add('active');
+            element.querySelector('.check-circle').classList.remove('bi-circle');
+            element.querySelector('.check-circle').classList.add('bi-check-circle-fill');
+        }
+
+        function handlePay() {
+            const btn = document.getElementById('btnPay');
+            const data = scenarios[currentScenario];
+
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+            btn.style.opacity = '0.8';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                document.getElementById('checkoutView').style.display = 'none';
+                document.querySelector('.countdown-bar').style.display = 'none';
+
+                document.getElementById('successTitle').innerText = data.successTitle;
+                document.getElementById('successDesc').innerText = data.successDesc;
+
+                document.getElementById('successView').style.display = 'block';
+                window.scrollTo(0, 0);
+            }, 1500);
+        }
+
+        // Countdown Timer
+        let timeLeft = 900;
+        setInterval(() => {
+            if (timeLeft <= 0) return;
+            timeLeft--;
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `${m}:${s}`;
+        }, 1000);
+
+        // Init
+        switchScenario('membership');
+    </script>
+</body>
+</html>

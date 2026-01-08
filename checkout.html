@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>言禾收银台 - 统一支付</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #004aad; --accent: #ff6b00; --bg-light: #f4f6f9; }
+        body {
+            font-family: -apple-system, "PingFang SC", sans-serif;
+            background: var(--bg-light); padding-top: 70px; min-height: 100vh;
+        }
+
+        /* 导航栏 */
+        .navbar-custom { background: #fff; box-shadow: 0 1px 5px rgba(0,0,0,0.05); height: 70px; }
+        .navbar-brand {
+            font-weight: 900; background: linear-gradient(135deg, #004aad 0%, #0078ff 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        /* 倒计时条 */
+        .countdown-bar {
+            background: #fff3cd; color: #856404; text-align: center; font-size: 13px; padding: 8px;
+            border-bottom: 1px solid #ffeeba;
+        }
+
+        /* 演示控制器 (仅用于演示切换场景) */
+        .demo-switcher {
+            background: #333; color: #fff; padding: 10px; text-align: center; font-size: 12px;
+        }
+        .demo-btn {
+            background: #555; border: 1px solid #777; color: #fff; padding: 2px 10px; border-radius: 4px; margin: 0 5px; cursor: pointer;
+        }
+        .demo-btn.active { background: var(--accent); border-color: var(--accent); font-weight: bold; }
+
+        /* 布局与卡片 */
+        .checkout-container { max-width: 1000px; margin: 30px auto; padding: 0 15px; }
+        .pay-card {
+            background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            padding: 25px; margin-bottom: 20px; border: 1px solid #eee; transition: all 0.3s;
+        }
+        .card-title-sm { font-size: 16px; font-weight: 800; color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px dashed #eee; }
+
+        /* 商品信息 */
+        .product-info { display: flex; gap: 15px; align-items: flex-start; }
+        .product-thumb { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; background: #eee; flex-shrink: 0; }
+        .product-title { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
+        .product-desc { font-size: 12px; color: #888; line-height: 1.6; }
+        .tag-escrow { background: #e3f2fd; color: var(--primary); padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+
+        /* 支付方式 */
+        .payment-method {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px; border: 2px solid #f0f0f0; border-radius: 10px;
+            cursor: pointer; transition: 0.2s; margin-bottom: 10px;
+        }
+        .payment-method:hover { border-color: #d0d0d0; }
+        .payment-method.active { border-color: var(--primary); background: rgba(0, 74, 173, 0.02); }
+        .check-circle { color: #ddd; font-size: 20px; }
+        .payment-method.active .check-circle { color: var(--primary); }
+
+        /* 价格明细 */
+        .price-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: #666; }
+        .total-price { font-size: 28px; font-weight: 900; color: var(--accent); }
+
+        /* 发票选项 */
+        .invoice-box { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 15px; display: none; } /* 默认隐藏 */
+
+        /* 按钮 */
+        .btn-pay {
+            background: linear-gradient(135deg, #ff6b00 0%, #ff8f00 100%);
+            color: #fff; border: none; width: 100%; padding: 15px;
+            font-size: 18px; font-weight: bold; border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(255, 107, 0, 0.3); transition: 0.3s;
+        }
+        .btn-pay:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(255, 107, 0, 0.4); }
+
+        /* 成功页 */
+        .success-view { display: none; text-align: center; padding: 50px 20px; }
+        .success-icon {
+            width: 80px; height: 80px; background: #28a745; color: #fff;
+            border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 40px; margin-bottom: 20px; animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes popIn { from{transform:scale(0);} to{transform:scale(1);} }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="index.html">言禾 YanHe</a>
+            <div class="ms-auto text-muted small"><i class="bi bi-shield-lock-fill text-success"></i> 银行级资金托管</div>
+        </div>
+    </nav>
+
+    <div class="demo-switcher">
+        <span><i class="bi bi-eye"></i> 评委演示视角切换：</span>
+        <button class="demo-btn active" onclick="switchScenario('membership')">场景A: 购买会员</button>
+        <button class="demo-btn" onclick="switchScenario('task')">场景B: 支付任务赏金</button>
+    </div>
+
+    <div class="countdown-bar">
+        <i class="bi bi-clock"></i> 请在 <strong id="timer">14:59</strong> 内完成支付，超时订单将自动取消
+    </div>
+
+    <div class="checkout-container" id="checkoutView">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="pay-card">
+                    <div class="card-title-sm">订单信息</div>
+                    <div class="product-info">
+                        <img id="pImg" src="https://images.unsplash.com/photo-1596797038530-2c107229654b?w=200" class="product-thumb">
+                        <div>
+                            <div class="product-title" id="pTitle">方言地图 Pro 会员 (年度订阅)</div>
+                            <div class="product-desc" id="pDesc">
+                                解锁 50+ 城市方言生存挑战 | AI 语音纠音无限次<br>
+                                <span class="text-primary mt-1 d-inline-block"><i class="bi bi-check-circle-fill"></i> 随时可取消</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pay-card">
+                    <div class="card-title-sm">支付方式</div>
+
+                    <div class="payment-method active" onclick="selectPay(this)">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-briefcase-fill text-primary fs-4 me-3" id="iconBalance" style="display:none;"></i>
+                            <i class="bi bi-wechat text-success fs-4 me-3" id="iconWechat"></i>
+                            <div>
+                                <div class="fw-bold" id="payMethodName">微信支付 WeChat Pay</div>
+                                <div class="small text-muted" id="payMethodDesc">亿万用户的选择</div>
+                            </div>
+                        </div>
+                        <i class="bi bi-check-circle-fill check-circle"></i>
+                    </div>
+
+                    <div class="payment-method" onclick="selectPay(this)">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-alipay text-primary fs-4 me-3"></i>
+                            <div>
+                                <div class="fw-bold">支付宝 Alipay</div>
+                                <div class="small text-muted">支持花呗 / 企业账户</div>
+                            </div>
+                        </div>
+                        <i class="bi bi-circle check-circle"></i>
+                    </div>
+
+                    <div class="payment-method" onclick="selectPay(this)">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-credit-card-2-front text-warning fs-4 me-3"></i>
+                            <div>
+                                <div class="fw-bold">Visa / MasterCard</div>
+                                <div class="small text-muted">International Payment</div>
+                            </div>
+                        </div>
+                        <i class="bi bi-circle check-circle"></i>
+                    </div>
+                </div>
+
+                <div class="pay-card" id="invoiceCard" style="display:none;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="needInvoice" onchange="toggleInvoice()">
+                        <label class="form-check-label fw-bold" for="needInvoice">开具增值税电子普通发票</label>
+                    </div>
+                    <div class="invoice-box" id="invoiceBox">
+                        <div class="mb-2">
+                            <label class="small text-muted">发票抬头</label>
+                            <input type="text" class="form-control form-control-sm" value="北京言禾教育科技有限公司" placeholder="填写企业抬头">
+                        </div>
+                        <div>
+                            <label class="small text-muted">税号</label>
+                            <input type="text" class="form-control form-control-sm" value="91110108MA..." placeholder="填写纳税人识别号">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="pay-card sticky-top" style="top: 90px;">
+                    <div class="card-title-sm">费用明细</div>
+
+                    <div id="priceDetails">
+                        </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between align-items-end mb-4">
+                        <span class="fw-bold">应付总额</span>
+                        <span class="total-price" id="totalPrice">¥ 98.00</span>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" checked id="agree">
+                        <label class="form-check-label small text-muted" for="agree">
+                            我已阅读并同意 <a href="#">《平台服务协议》</a>
+                        </label>
+                    </div>
+
+                    <button class="btn-pay" onclick="handlePay()" id="btnPay">
+                        立即支付 ¥98
+                    </button>
+
+                    <div class="text-center mt-3 text-muted" style="font-size: 10px;">
+                        <i class="bi bi-shield-check"></i> 资金由第三方银行托管 · 任务完成前冻结
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container success-view" id="successView">
+        <div class="success-icon"><i class="bi bi-check-lg"></i></div>
+        <h2 class="fw-bold mb-3" id="successTitle">支付成功！</h2>
+        <p class="text-muted mb-5" id="successDesc">感谢您的订阅，Pro 会员权益已立即生效。</p>
+
+        <div class="d-flex justify-content-center gap-3">
+            <a href="service.html" class="btn btn-outline-secondary rounded-pill px-4">查看订单</a>
+            <a href="service.html" class="btn btn-primary rounded-pill px-5 fw-bold">返回控制台</a>
+        </div>
+    </div>
+
+    <script>
+        // --- 场景数据定义 ---
+        const scenarios = {
+            'membership': {
+                img: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=200',
+                title: '方言地图 Pro 会员 (年度订阅)',
+                desc: '解锁 50+ 城市方言生存挑战 | AI 语音纠音无限次<br><span class="text-primary mt-1 d-inline-block"><i class="bi bi-check-circle-fill"></i> 随时可取消</span>',
+                detailsHTML: `
+                    <div class="price-row"><span>商品总价</span><span>¥ 198.00</span></div>
+                    <div class="price-row text-success"><span><i class="bi bi-ticket-perforated-fill"></i> 大学生特惠</span><span>- ¥ 100.00</span></div>
+                    <div class="price-row text-muted small"><span>税费</span><span>¥ 0.00</span></div>
+                `,
+                total: '¥ 98.00',
+                btnText: '立即支付 ¥98',
+                showInvoice: false,
+                successTitle: '支付成功！',
+                successDesc: 'Pro 会员权益已立即生效，快去体验吧。'
+            },
+            'task': {
+                img: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=200',
+                title: '需求发布：法律文件英译中',
+                desc: '<span class="tag-escrow"><i class="bi bi-lock-fill"></i> 资金担保托管</span><br>需求编号：T20260108-88<br>交付周期：5天',
+                detailsHTML: `
+                    <div class="price-row"><span>任务赏金 (托管给人才)</span><span>¥ 500.00</span></div>
+                    <div class="price-row"><span>平台技术服务费 (10%)</span><span>¥ 50.00</span></div>
+                    <div class="price-row text-danger"><span><i class="bi bi-fire"></i> 加急处理费</span><span>¥ 20.00</span></div>
+                `,
+                total: '¥ 570.00',
+                btnText: '支付托管资金 ¥570',
+                showInvoice: true,
+                successTitle: '托管成功！',
+                successDesc: '资金已冻结至担保账户，待任务验收通过后将发放给人才。'
+            }
+        };
+
+        // --- 逻辑控制 ---
+        let currentScenario = 'membership';
+
+        function switchScenario(type) {
+            currentScenario = type;
+            const data = scenarios[type];
+
+            // 切换按钮样式
+            document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 动画过渡效果
+            const container = document.getElementById('checkoutView');
+            container.style.opacity = '0.5';
+
+            setTimeout(() => {
+                // 更新内容
+                document.getElementById('pImg').src = data.img;
+                document.getElementById('pTitle').innerText = data.title;
+                document.getElementById('pDesc').innerHTML = data.desc;
+                document.getElementById('priceDetails').innerHTML = data.detailsHTML;
+                document.getElementById('totalPrice').innerText = data.total;
+                document.getElementById('btnPay').innerText = data.btnText;
+
+                // 切换发票模块
+                document.getElementById('invoiceCard').style.display = data.showInvoice ? 'block' : 'none';
+
+                // 恢复透明度
+                container.style.opacity = '1';
+            }, 200);
+        }
+
+        function toggleInvoice() {
+            const box = document.getElementById('invoiceBox');
+            box.style.display = document.getElementById('needInvoice').checked ? 'block' : 'none';
+        }
+
+        function selectPay(element) {
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('.check-circle').classList.remove('bi-check-circle-fill');
+                el.querySelector('.check-circle').classList.add('bi-circle');
+            });
+            element.classList.add('active');
+            element.querySelector('.check-circle').classList.remove('bi-circle');
+            element.querySelector('.check-circle').classList.add('bi-check-circle-fill');
+        }
+
+        function handlePay() {
+            const btn = document.querySelector('.btn-pay');
+            const data = scenarios[currentScenario];
+
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> 安全处理中...';
+            btn.style.opacity = '0.8';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                document.getElementById('checkoutView').style.display = 'none';
+                document.querySelector('.countdown-bar').style.display = 'none';
+
+                // 更新成功页文案
+                document.getElementById('successTitle').innerText = data.successTitle;
+                document.getElementById('successDesc').innerText = data.successDesc;
+
+                document.getElementById('successView').style.display = 'block';
+                window.scrollTo(0, 0);
+            }, 1500);
+        }
+
+        // 倒计时
+        let timeLeft = 900;
+        setInterval(() => {
+            if (timeLeft <= 0) return;
+            timeLeft--;
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `${m}:${s}`;
+        }, 1000);
+    </script>
+</body>
+</html>

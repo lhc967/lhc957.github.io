@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商务汉语谈判技巧 - 课程详情</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #004aad; --accent: #ff6b00; --bg-light: #f8faff; }
+        body {
+            font-family: -apple-system, "PingFang SC", sans-serif;
+            background: var(--bg-light); padding-top: 70px; color: #333;
+        }
+
+        /* 导航栏 */
+        .navbar-custom { background: #fff; box-shadow: 0 1px 5px rgba(0,0,0,0.05); height: 70px; z-index: 1000; }
+        .navbar-brand {
+            font-weight: 900; background: linear-gradient(135deg, #004aad 0%, #0078ff 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .nav-link { font-weight: 600; color: #555 !important; }
+
+        /* 面包屑 */
+        .breadcrumb-bar { padding: 15px 0; font-size: 13px; color: #666; }
+        .breadcrumb-bar a { text-decoration: none; color: #666; }
+        .breadcrumb-bar a:hover { color: var(--primary); }
+
+        /* 视频播放区 */
+        .video-wrapper {
+            background: #000; border-radius: 12px; overflow: hidden; position: relative;
+            aspect-ratio: 16/9; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .video-placeholder {
+            width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: opacity 0.5s;
+        }
+        .play-overlay {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 10; transition: opacity 0.5s;
+        }
+        .btn-play-big {
+            width: 70px; height: 70px; background: rgba(255,255,255,0.2); backdrop-filter: blur(5px);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 30px; cursor: pointer; border: 2px solid rgba(255,255,255,0.5);
+            transition: all 0.3s;
+        }
+        .btn-play-big:hover { transform: scale(1.1); background: var(--primary); border-color: var(--primary); }
+
+        /* 模拟播放后的状态 */
+        .video-playing-state {
+            position: absolute; inset: 0; display: none; align-items: center; justify-content: center; color: #fff;
+        }
+
+        /* AI 工具条 */
+        .ai-tools-overlay {
+            position: absolute; top: 15px; right: 15px; display: flex; gap: 10px; z-index: 20;
+        }
+        .ai-tool-badge {
+            background: rgba(0,0,0,0.6); color: #fff; padding: 5px 12px; border-radius: 20px;
+            font-size: 12px; cursor: pointer; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2);
+            display: flex; align-items: center; gap: 5px; transition: 0.3s;
+        }
+        .ai-tool-badge:hover { background: var(--primary); border-color: var(--primary); }
+        .ai-tool-badge.active { background: var(--primary); border-color: var(--primary); }
+
+        /* 课程头信息 */
+        .course-header { margin-top: 25px; margin-bottom: 20px; }
+        .course-tag { background: #e3f2fd; color: var(--primary); padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-right: 10px; }
+        .course-title { font-size: 24px; font-weight: 800; margin-top: 10px; margin-bottom: 10px; }
+        .course-meta { font-size: 13px; color: #888; display: flex; gap: 20px; align-items: center; }
+
+        /* 选项卡 */
+        .nav-tabs-course { border-bottom: 1px solid #eee; margin-bottom: 25px; }
+        .nav-link-course {
+            border: none; background: transparent; padding: 10px 20px; font-weight: 600; color: #666;
+            border-bottom: 3px solid transparent; cursor: pointer;
+        }
+        .nav-link-course.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        /* 目录列表 */
+        .chapter-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 15px;
+            border-bottom: 1px solid #f0f0f0; transition: 0.2s; cursor: pointer; border-radius: 8px;
+        }
+        .chapter-item:hover { background: #f9f9f9; }
+        .chapter-item.active { background: #eef4ff; }
+        .chapter-item.active .bi-play-circle { color: var(--primary); }
+        .chapter-item.active .chapter-title { font-weight: bold; color: var(--primary); }
+
+        /* 侧边栏 */
+        .sidebar-sticky { position: sticky; top: 90px; }
+        .enroll-card {
+            background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center;
+        }
+        /* 免费样式 */
+        .price-tag-free { font-size: 32px; font-weight: 900; color: #198754; }
+
+        .btn-enroll {
+            width: 100%; background: #198754; color: #fff; border: none; padding: 12px;
+            border-radius: 50px; font-weight: bold; font-size: 16px; margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(25, 135, 84, 0.3); transition: 0.3s;
+        }
+        .btn-enroll:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(25, 135, 84, 0.4); }
+        /* 报名后样式 */
+        .btn-enroll.enrolled { background: #e0e0e0; color: #666; box-shadow: none; cursor: default; }
+
+        .ai-note-card {
+            background: linear-gradient(135deg, #fdfbf7 0%, #fff 100%); border: 1px solid #f0e6d2;
+            border-radius: 12px; padding: 20px; margin-top: 20px; position: relative;
+        }
+        .ai-note-badge {
+            position: absolute; top: -10px; right: 15px; background: #333; color: #ffd700;
+            font-size: 10px; padding: 4px 10px; border-radius: 20px; font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="index.html">言禾 YanHe</a>
+            <div class="d-flex align-items-center gap-3">
+                <a href="education.html" class="btn btn-outline-secondary btn-sm rounded-pill">返回课程库</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="breadcrumb-bar">
+            <a href="index.html">首页</a> <span class="mx-1">/</span>
+            <a href="education.html">教育云</a> <span class="mx-1">/</span>
+            <span class="text-dark">商务汉语</span>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+
+                <div class="video-wrapper" id="videoArea">
+                    <div class="ai-tools-overlay">
+                        <div class="ai-tool-badge" onclick="toggleAI(this)" title="实时生成双语字幕">
+                            <i class="bi bi-translate"></i> AI 同传
+                        </div>
+                        <div class="ai-tool-badge" onclick="toggleAI(this)" title="自动抓取知识点">
+                            <i class="bi bi-lightbulb"></i> 难点高亮
+                        </div>
+                    </div>
+
+                    <img id="videoCover" src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&q=80" class="video-placeholder">
+                    <div id="playOverlay" class="play-overlay">
+                        <div class="btn-play-big" onclick="playVideo()">
+                            <i class="bi bi-play-fill" style="margin-left: 5px;"></i>
+                        </div>
+                        <div class="mt-3 text-white small fw-bold bg-dark bg-opacity-50 px-3 py-1 rounded-pill">
+                            点击开始学习
+                        </div>
+                    </div>
+
+                    <div id="playingState" class="video-playing-state">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-2">正在加载全息课堂资源...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-header">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="course-tag">HSK 5级</span>
+                        <span class="course-tag bg-warning text-dark bg-opacity-25">商务方向</span>
+                    </div>
+                    <h1 class="course-title">商务汉语高级：谈判技巧与礼仪</h1>
+                    <div class="course-meta">
+                        <span><i class="bi bi-star-fill text-warning"></i> 4.9 (1,208 评价)</span>
+                        <span><i class="bi bi-people-fill"></i> 3.5w 人已加入</span>
+                        <span><i class="bi bi-clock"></i> 总时长 12h 30m</span>
+                    </div>
+                </div>
+
+                <div class="nav-tabs-course">
+                    <button class="nav-link-course active" onclick="switchTab('intro', this)">课程介绍</button>
+                    <button class="nav-link-course" onclick="switchTab('catalog', this)">课程目录</button>
+                    <button class="nav-link-course" onclick="switchTab('ai', this)">
+                        <i class="bi bi-stars text-primary"></i> AI 助教
+                    </button>
+                </div>
+
+                <div id="tab-intro" class="tab-pane d-block">
+                    <h5 class="fw-bold mb-3">你将学到什么</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6"><i class="bi bi-check2 text-success me-2"></i> 掌握 50+ 商务谈判核心词汇</div>
+                        <div class="col-md-6"><i class="bi bi-check2 text-success me-2"></i> 理解中国式饭局礼仪</div>
+                        <div class="col-md-6"><i class="bi bi-check2 text-success me-2"></i> 能够起草标准的商务合同</div>
+                        <div class="col-md-6"><i class="bi bi-check2 text-success me-2"></i> 模拟真实的商业谈判场景</div>
+                    </div>
+                    <h5 class="fw-bold mb-3">课程简介</h5>
+                    <p class="text-muted" style="line-height: 1.8;">
+                        本课程专为具备中级汉语水平（HSK 4-5级）的学习者设计。课程结合了**“言禾”独家的 AI 模拟对练系统**，让你在实战中提升口语能力。
+                        <br><br>
+                        <strong class="text-primary">公益声明：</strong> 为响应“国际中文教育行动”，本课程向全球学习者永久免费开放。
+                    </p>
+                </div>
+
+                <div id="tab-catalog" class="tab-pane d-none">
+                    <div class="chapter-item active" onclick="playChapter(this, 1)">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-play-circle fs-4 me-3 text-primary"></i>
+                            <div>
+                                <div class="chapter-title">01. 课程导论：中国人的谈判思维</div>
+                                <div class="small text-muted">15:00</div>
+                            </div>
+                        </div>
+                        <span class="badge bg-success bg-opacity-10 text-success">正在播放</span>
+                    </div>
+                    <div class="chapter-item" onclick="playChapter(this, 2)">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-play-circle fs-4 me-3 text-muted"></i>
+                            <div>
+                                <div class="chapter-title">02. 核心词汇：报价与还价</div>
+                                <div class="small text-muted">22:30</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chapter-item" onclick="playChapter(this, 3)">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-play-circle fs-4 me-3 text-muted"></i>
+                            <div>
+                                <div class="chapter-title">03. 文化场景：酒桌上的博弈</div>
+                                <div class="small text-muted">18:45</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-ai" class="tab-pane d-none">
+                    <div class="bg-light p-4 rounded-3 text-center border">
+                        <div class="mb-3 display-4 text-primary"><i class="bi bi-robot"></i></div>
+                        <h6 class="fw-bold">AI 伴学助手已就绪</h6>
+                        <p class="text-muted small">学完视频后，AI 将为您生成专属思维导图和随堂测验。</p>
+                        <button class="btn btn-primary btn-sm rounded-pill px-4" onclick="alert('请先完成视频学习')">开始 AI 测验</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sidebar-sticky">
+
+                    <div class="enroll-card">
+                        <div class="price-tag-free">免费 Free</div>
+                        <div class="text-muted small text-decoration-line-through">原价 ¥ 499</div>
+                        <div class="text-success small fw-bold mb-3 mt-1"><i class="bi bi-heart-fill"></i> 公益扶持项目</div>
+
+                        <button class="btn-enroll" id="btnJoin" onclick="startLearning()">
+                            立即开始学习
+                        </button>
+                        <div class="mt-3 small text-muted">
+                            <i class="bi bi-check-circle"></i> 永久有效<br>
+                            <i class="bi bi-patch-check"></i> 完成可获证书
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-3 border mt-3 d-flex gap-3 align-items-center">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ProfWang" width="50" class="rounded-circle">
+                        <div>
+                            <div class="fw-bold">王教授</div>
+                            <div class="small text-muted">北京语言大学 · 博士生导师</div>
+                        </div>
+                    </div>
+
+                    <div class="ai-note-card">
+                        <div class="ai-note-badge"><i class="bi bi-lightning-fill"></i> AI 生成</div>
+                        <h6 class="fw-bold mb-2">本课重点摘要</h6>
+                        <ul class="small text-muted ps-3 mb-0">
+                            <li>谈判三要素：天时、地利、人和</li>
+                            <li>核心句型：“能不能再让一点？”</li>
+                            <li>文化点：面子工程在谈判中的作用</li>
+                        </ul>
+                        <button class="btn btn-link btn-sm text-decoration-none p-0 mt-2 small" onclick="addNote()">
+                            <i class="bi bi-plus-circle"></i> 加入艾宾浩斯计划
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="height: 100px;"></div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- 1. Tab 切换逻辑 ---
+        function switchTab(tabId, btn) {
+            // 隐藏所有内容
+            document.getElementById('tab-intro').className = 'tab-pane d-none';
+            document.getElementById('tab-catalog').className = 'tab-pane d-none';
+            document.getElementById('tab-ai').className = 'tab-pane d-none';
+
+            // 显示目标内容
+            document.getElementById('tab-' + tabId).className = 'tab-pane d-block animation-fade';
+
+            // 更新按钮状态
+            document.querySelectorAll('.nav-link-course').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // --- 2. AI 按钮交互 ---
+        function toggleAI(btn) {
+            btn.classList.toggle('active');
+            if(btn.classList.contains('active')){
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<span class="spinner-grow spinner-grow-sm text-light" style="width: 0.5rem; height: 0.5rem;"></span> 开启中...';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML; // 恢复文字但保持 active 样式
+                }, 800);
+            }
+        }
+
+        // --- 3. 报名逻辑 (关键修改：不跳收银台) ---
+        function startLearning() {
+            const btn = document.getElementById('btnJoin');
+            btn.innerText = '正在加入...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert('🎉 报名成功！\n您已加入该公益课程，学习进度将自动同步。');
+                btn.innerText = '继续学习';
+                btn.classList.add('enrolled');
+                btn.disabled = false;
+            }, 800);
+        }
+
+        // --- 4. 视频播放模拟 ---
+        function playVideo() {
+            document.getElementById('videoCover').style.opacity = '0';
+            document.getElementById('playOverlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('videoCover').style.display = 'none';
+                document.getElementById('playOverlay').style.display = 'none';
+                document.getElementById('playingState').style.display = 'flex';
+            }, 500);
+        }
+
+        // --- 5. 目录切换逻辑 ---
+        function playChapter(item, index) {
+            // 重置所有章节状态
+            document.querySelectorAll('.chapter-item').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('i').classList.remove('text-primary');
+                el.querySelector('i').classList.add('text-muted');
+                const badge = el.querySelector('.badge');
+                if(badge) badge.remove();
+            });
+
+            // 激活当前点击的章节
+            item.classList.add('active');
+            item.querySelector('i').classList.remove('text-muted');
+            item.querySelector('i').classList.add('text-primary');
+
+            // 添加“正在播放”标签
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-success bg-opacity-10 text-success';
+            badge.innerText = '正在播放';
+            item.appendChild(badge);
+
+            // 模拟重新加载视频
+            playVideo();
+            alert(`正在切换至第 ${index} 节...`);
+        }
+
+        // --- 6. 加入笔记 ---
+        function addNote() {
+            alert('✅ 已添加！\n系统将根据艾宾浩斯曲线在 30 分钟后提醒您复习此知识点。');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务大厅 - 言禾 YanHe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        /* 继承首页核心变量 */
+        :root { --primary: #004aad; --accent: #ff6b00; --dark-blue: #003366; --bg-light: #f8faff; }
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; padding-top: 70px; background: var(--bg-light); }
+
+        /* 导航栏 (完全一致) */
+        .navbar-custom { background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+        .navbar-brand { font-weight: 900; font-size: 1.6rem; color: var(--primary); letter-spacing: -0.5px; }
+        .nav-link { font-weight: 600; color: #333; }
+        .nav-link:hover, .nav-link.active { color: var(--primary); }
+
+        /* 任务大厅专用 Hero */
+        .service-hero {
+            background: linear-gradient(180deg, #fff 0%, #f0f7ff 100%);
+            padding: 50px 0 30px;
+            text-align: center;
+        }
+        .toggle-switch {
+            background: #eef4fc; border-radius: 50px; padding: 5px; display: inline-flex;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px;
+        }
+        .toggle-btn {
+            padding: 10px 30px; border-radius: 40px; border: none; font-weight: bold; background: transparent; color: #666; transition: 0.3s;
+        }
+        .toggle-btn.active { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(0, 74, 173, 0.3); }
+
+        /* 服务分层卡片 (AI vs 人工) */
+        .service-tier-card {
+            background: #fff; border-radius: 20px; padding: 30px; height: 100%; border: 1px solid rgba(0,0,0,0.03);
+            transition: all 0.3s ease; position: relative; overflow: hidden;
+        }
+        .service-tier-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.05); border-color: var(--primary); }
+        .tier-icon { width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 20px; }
+        .tier-ai { background: #e3f2fd; color: var(--primary); }
+        .tier-pro { background: #fff3e0; color: var(--accent); }
+        .badge-tag { font-size: 12px; padding: 4px 10px; border-radius: 6px; background: #f5f5f5; color: #666; margin-right: 5px; }
+
+        /* 任务列表 (仿兼职平台) */
+        .task-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .task-card {
+            background: #fff; border-radius: 16px; padding: 20px; margin-bottom: 15px;
+            border-left: 5px solid transparent; box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            transition: 0.2s; cursor: pointer;
+        }
+        .task-card:hover { border-left-color: var(--accent); transform: translateX(5px); }
+        .price-tag { color: var(--accent); font-weight: 800; font-size: 1.2rem; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        /* 状态胶囊 */
+        .status-badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: bold; }
+        .status-bidding { background: #e8f5e9; color: #2e7d32; } /* 竞标中 */
+        .status-urgent { background: #ffebee; color: #c62828; } /* 急单 */
+
+        /* 侧边栏 */
+        .sidebar-box { background: #fff; border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">言禾 YanHe</a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="bi bi-list fs-1 text-primary"></i>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html">首页</a></li>
+                    <li class="nav-item"><a class="nav-link" href="story.html">中国故事</a></li>
+                    <li class="nav-item"><a class="nav-link" href="education.html">教育云</a></li>
+                    <li class="nav-item"><a class="nav-link active fw-bold text-primary" href="service.html">任务大厅</a></li>
+                    <li class="nav-item"><a class="nav-link" href="culture.html">方言地图</a></li>
+                </ul>
+                <div class="ms-lg-4 mt-3 mt-lg-0 d-flex gap-2">
+                    <a href="login.html" class="btn btn-outline-secondary rounded-pill btn-sm px-3 fw-bold">登录/注册</a>
+                    <a href="#" class="btn btn-primary rounded-pill btn-sm fw-bold px-3 shadow-sm">
+                        <i class="bi bi-plus-lg"></i> 发布需求
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="service-hero">
+        <div class="container">
+            <h2 class="fw-bolder mb-3 text-dark">全球语言服务众包大厅</h2>
+            <p class="text-muted mb-4">AI 赋能简单的翻译，专家解决深度的需求</p>
+
+            <div class="toggle-switch">
+                <button class="toggle-btn active" onclick="switchRole('client')">我是需求方 (Client)</button>
+                <button class="toggle-btn" onclick="switchRole('worker')">我是创作者 (Talent)</button>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white p-1 border">
+                        <span class="input-group-text border-0 bg-white ps-3"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" class="form-control border-0 shadow-none" placeholder="搜索任务：如“法律翻译”、“方言录音”...">
+                        <button class="btn btn-primary rounded-pill px-4 fw-bold">搜索</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row g-4 mb-5">
+            <div class="col-md-6">
+                <div class="service-tier-card">
+                    <div class="d-flex justify-content-between">
+                        <div class="tier-icon tier-ai"><i class="bi bi-robot"></i></div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 h-50">简单层面</span>
+                    </div>
+                    <h4 class="fw-bold">AI 智能极速服务</h4>
+                    <p class="text-muted small my-3">
+                        调用言禾自建 Agent 知识库，针对日常对话、邮件、简单文本进行秒级响应。支持深层语义理解。
+                    </p>
+                    <div class="d-flex gap-2 mb-4">
+                        <span class="badge-tag">免费/低价</span>
+                        <span class="badge-tag">秒级交付</span>
+                        <span class="badge-tag">24h在线</span>
+                    </div>
+                    <button class="btn btn-outline-primary rounded-pill w-100 fw-bold">试用 AI 助手</button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="service-tier-card border-warning border-opacity-25" style="background: linear-gradient(to bottom right, #fff, #fffaf0);">
+                    <div class="d-flex justify-content-between">
+                        <div class="tier-icon tier-pro"><i class="bi bi-people-fill"></i></div>
+                        <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-2 h-50">复杂层面</span>
+                    </div>
+                    <h4 class="fw-bold">专家众包竞标</h4>
+                    <p class="text-muted small my-3">
+                        针对法律文书、文学著作、方言修复等高难需求。发布任务 -> 高校人才竞标 -> 最优者得奖励。
+                    </p>
+                    <div class="d-flex gap-2 mb-4">
+                        <span class="badge-tag">双向盲审</span>
+                        <span class="badge-tag">资金托管</span>
+                        <span class="badge-tag">就业扶持</span>
+                    </div>
+                    <button class="btn btn-warning text-white rounded-pill w-100 fw-bold shadow-sm">发布高薪悬赏</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="task-list-header">
+                    <h5 class="fw-bold m-0"><i class="bi bi-activity text-danger me-2"></i>最新急需任务</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light rounded-pill dropdown-toggle" type="button">筛选：全部</button>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <span class="status-badge status-urgent me-2">急单</span>
+                            <span class="fw-bold text-dark">《中国茶道史》第三章英译</span>
+                        </div>
+                        <div class="price-tag">¥ 1,200</div>
+                    </div>
+                    <p class="text-muted small mb-3 line-clamp-2">需要有历史文学背景的译者，重点在于保留茶道术语的文化韵味，共计5000字...</p>
+                    <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="user-avatar">
+                            <span class="small text-muted fw-bold">浙江某茶文化公司</span>
+                        </div>
+                        <div class="small text-primary">
+                            <i class="bi bi-clock"></i> 剩 12 小时 • <i class="bi bi-people"></i> 8人已投标
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <span class="status-badge status-bidding me-2">方言</span>
+                            <span class="fw-bold text-dark">录制 50 句正宗苏州话日常用语</span>
+                        </div>
+                        <div class="price-tag">¥ 300</div>
+                    </div>
+                    <p class="text-muted small mb-3">用于完善言禾方言语料库。要求：女性，60岁以上发音人优先，需提供身份证验证籍贯...</p>
+                    <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="https://via.placeholder.com/40/004aad/fff?text=YH" class="user-avatar">
+                            <span class="small text-muted fw-bold">言禾官方语料组</span>
+                        </div>
+                        <div class="small text-primary">
+                            <i class="bi bi-clock"></i> 长期有效 • <i class="bi bi-people"></i> 124人参与
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="task-card">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <span class="status-badge bg-light text-dark me-2">润色</span>
+                            <span class="fw-bold text-dark">留学申请文书 PS 深度润色</span>
+                        </div>
+                        <div class="price-tag">¥ 500</div>
+                    </div>
+                    <p class="text-muted small mb-3">申请英国G5高校，需要地道的英式表达，请BSU的英语专业学长学姐帮忙...</p>
+                    <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Annie" class="user-avatar">
+                            <span class="small text-muted fw-bold">同学小王</span>
+                        </div>
+                        <div class="small text-primary">
+                            <i class="bi bi-clock"></i> 剩 2 天 • <i class="bi bi-people"></i> 3人已投标
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sidebar-box text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-person-circle text-muted" style="font-size: 3rem;"></i>
+                    </div>
+                    <h6 class="fw-bold">登录以管理任务</h6>
+                    <p class="small text-muted mb-3">你是高校语言人才吗？认证后接单免佣金。</p>
+                    <button class="btn btn-primary rounded-pill w-100 mb-2">学生认证登录</button>
+                    <button class="btn btn-outline-secondary rounded-pill w-100 btn-sm">企业登录</button>
+                </div>
+
+                <div class="sidebar-box">
+                    <h6 class="fw-bold mb-3">🏆 本周接单榜 (BSU专区)</h6>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-warning text-dark me-2 rounded-circle" style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;">1</span>
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jack" class="rounded-circle me-2" width="32">
+                            <span class="small fw-bold">英语系·张同学</span>
+                        </div>
+                        <span class="small text-danger fw-bold">¥ 3,200</span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-secondary bg-opacity-25 text-dark me-2 rounded-circle" style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;">2</span>
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lily" class="rounded-circle me-2" width="32">
+                            <span class="small fw-bold">德语系·李同学</span>
+                        </div>
+                        <span class="small text-danger fw-bold">¥ 1,850</span>
+                    </div>
+                     <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-secondary bg-opacity-25 text-dark me-2 rounded-circle" style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;">3</span>
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mike" class="rounded-circle me-2" width="32">
+                            <span class="small fw-bold">俄语系·王同学</span>
+                        </div>
+                        <span class="small text-danger fw-bold">¥ 980</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-box bg-primary text-white" style="background: linear-gradient(135deg, var(--primary), var(--accent));">
+                    <h6 class="fw-bold"><i class="bi bi-heart-fill me-1"></i> 语言扶贫计划</h6>
+                    <p class="small opacity-75 mb-3">您的每一笔订单，我们将捐赠 1% 用于乡村儿童普通话推广。</p>
+                    <button class="btn btn-sm btn-light text-primary rounded-pill w-100 fw-bold">查看公益报告</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-4 mt-auto text-center small">
+        <div class="container">
+            <p class="mb-1 fw-bold">言禾 YanHe International Education © 2026</p>
+            <div class="text-white-50">
+                京ICP备12345678号 | <a href="#" class="text-white-50 text-decoration-underline">下载2025年度社会责任报告</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 简单的身份切换动效
+        function switchRole(role) {
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            // 这里可以添加逻辑：如果是 worker，隐藏“发布需求”按钮，显示“去接单”
+            if(role === 'worker') {
+                alert('已切换至 [人才接单] 视图：\n这里将展示适合您技能的任务推荐。');
+            } else {
+                alert('已切换至 [需求方] 视图：\n这里将展示您发布的任务进度。');
+            }
+        }
+    </script>
+</body>
+</html>

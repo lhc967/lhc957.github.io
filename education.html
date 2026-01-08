@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>教育云平台 - 言禾 YanHe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        /* --- 全局变量 --- */
+        :root { --primary: #004aad; --accent: #ff6b00; --bg-light: #f8faff; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding-top: 70px;
+            background: var(--bg-light);
+            color: #333;
+        }
+
+        /* --- 导航栏 (继承V4.0高颜值版) --- */
+        .navbar-custom {
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(16px);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.04); height: 70px;
+        }
+        .navbar-brand {
+            font-weight: 900; font-size: 1.5rem; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #004aad 0%, #0078ff 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .nav-link {
+            font-size: 15px; font-weight: 600; color: #555 !important;
+            padding: 8px 18px !important; border-radius: 30px; transition: all 0.3s;
+        }
+        .nav-link:hover { color: var(--primary) !important; background: rgba(0, 74, 173, 0.06); }
+        .nav-link.active { color: #fff !important; background: var(--primary); box-shadow: 0 4px 10px rgba(0, 74, 173, 0.3); }
+
+        /* --- 艾宾浩斯记忆仪表盘 (核心创新点) --- */
+        .memory-dashboard {
+            background: linear-gradient(135deg, #003366 0%, #004aad 100%);
+            color: #fff; padding: 30px 0; margin-bottom: 30px;
+            position: relative; overflow: hidden;
+        }
+        .memory-dashboard::after {
+            content: ''; position: absolute; top: -50%; right: -10%; width: 300px; height: 300px;
+            background: rgba(255,255,255,0.05); border-radius: 50%;
+        }
+
+        /* 记忆电池条 */
+        .brain-battery {
+            background: rgba(255,255,255,0.1); border-radius: 12px; padding: 4px;
+            height: 24px; width: 100%; max-width: 300px; overflow: hidden; position: relative;
+        }
+        .battery-level {
+            height: 100%; border-radius: 8px; background: linear-gradient(90deg, #ffc107, #ff9800);
+            width: 65%; /* 当前记忆量 */
+            transition: width 1s ease-in-out; position: relative;
+        }
+        .battery-level::after { /* 扫光动画 */
+            content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: translateX(-100%); animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+        /* --- 搜索与筛选区 --- */
+        .filter-bar {
+            background: #fff; padding: 15px 0; border-bottom: 1px solid #eee; margin-bottom: 20px;
+        }
+        .search-input {
+            border-radius: 30px; border: 1px solid #eee; background: #f9f9f9; padding: 10px 20px;
+        }
+        .filter-tag {
+            font-size: 14px; padding: 6px 16px; border-radius: 20px; cursor: pointer; color: #666; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .filter-tag.active { border-color: var(--primary); color: var(--primary); background: rgba(0,74,173,0.05); font-weight: bold; }
+        .filter-tag:hover { color: var(--primary); }
+
+        /* --- 课程卡片 (仿学堂在线 + 爬虫标记) --- */
+        .course-card {
+            background: #fff; border-radius: 12px; overflow: hidden; height: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: transform 0.3s;
+            border: 1px solid rgba(0,0,0,0.02); position: relative;
+        }
+        .course-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+
+        .card-img-top { height: 160px; object-fit: cover; position: relative; }
+        .source-badge {
+            position: absolute; top: 10px; right: 10px; font-size: 11px;
+            background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 4px;
+            backdrop-filter: blur(4px);
+        }
+
+        .course-body { padding: 15px; }
+        .course-title { font-weight: bold; font-size: 16px; margin-bottom: 8px; line-height: 1.4; height: 44px; overflow: hidden; }
+        .course-meta { font-size: 12px; color: #888; display: flex; justify-content: space-between; align-items: center; }
+        .teacher-avatar { width: 20px; height: 20px; border-radius: 50%; margin-right: 5px; }
+
+        /* 进度条 */
+        .progress-sm { height: 6px; border-radius: 3px; background: #f0f0f0; margin-top: 10px; }
+        .progress-bar-custom { background: var(--primary); border-radius: 3px; }
+
+        /* --- AI 小精灵 --- */
+        .ai-sprite-container {
+            position: fixed; bottom: 30px; right: 20px; z-index: 100;
+            display: flex; flex-direction: column; align-items: end;
+        }
+        .sprite-bubble {
+            background: #fff; padding: 10px 15px; border-radius: 15px 15px 0 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); font-size: 13px; color: #333;
+            margin-bottom: 10px; max-width: 200px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .sprite-avatar {
+            width: 60px; height: 60px; background: var(--accent); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 15px rgba(255, 107, 0, 0.4); cursor: pointer;
+            animation: float 3s ease-in-out infinite; color: #fff; font-size: 30px;
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.8) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="index.html">言禾 YanHe</a>
+            <button class="navbar-toggler border-0 bg-light rounded-circle p-2" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <i class="bi bi-list fs-5"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav mx-auto gap-1">
+                    <li class="nav-item"><a class="nav-link" href="index.html">首页</a></li>
+                    <li class="nav-item"><a class="nav-link" href="story.html">中国故事</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="education.html">教育云</a></li>
+                    <li class="nav-item"><a class="nav-link" href="service.html">任务大厅</a></li>
+                    <li class="nav-item"><a class="nav-link" href="culture.html">方言地图</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                    <a href="login.html" class="btn btn-outline-secondary rounded-pill btn-sm px-3 fw-bold">登录</a>
+                    <a href="index_en.html" class="btn btn-primary rounded-pill btn-sm fw-bold px-3 shadow-sm border-0" style="background:var(--primary)">English</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="memory-dashboard">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mb-3 mb-lg-0">
+                    <h2 class="fw-bold mb-2"><i class="bi bi-lightning-charge-fill text-warning"></i> 记忆能量站</h2>
+                    <p class="mb-0 opacity-75">根据艾宾浩斯曲线，你今天有 <strong class="text-warning">12</strong> 个生词和 <strong class="text-warning">3</strong> 个句型即将遗忘。</p>
+                </div>
+                <div class="col-lg-4">
+                    <div class="bg-white bg-opacity-10 p-3 rounded-3 border border-white border-opacity-20">
+                        <div class="d-flex justify-content-between text-sm mb-1">
+                            <span>当前记忆饱和度</span>
+                            <span class="fw-bold text-warning">65%</span>
+                        </div>
+                        <div class="brain-battery mb-2">
+                            <div class="battery-level"></div>
+                        </div>
+                        <button class="btn btn-sm btn-light text-primary fw-bold w-100 rounded-pill">
+                            <i class="bi bi-play-fill"></i> 立即开始复习
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-lg-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 rounded-start-pill ps-3"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" class="form-control border-start-0 rounded-end-pill bg-white shadow-sm search-input" placeholder="搜索课程 / 教授 / 知识点...">
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="d-flex gap-2 overflow-auto pb-2" style="white-space: nowrap;">
+                    <span class="filter-tag active">综合排序</span>
+                    <span class="filter-tag">HSK等级</span>
+                    <span class="filter-tag">商务汉语</span>
+                    <span class="filter-tag">中国文化</span>
+                    <span class="filter-tag">方言特色 <i class="bi bi-geo-alt-fill text-danger"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <h5 class="fw-bold mb-4 border-start border-4 border-primary ps-3">为你推荐 (AI Aggregated)</h5>
+
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+
+            <div class="col">
+                <div class="course-card" onclick="location.href='course_detail.html'">
+                    <div class="card-img-top">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&q=80" class="w-100 h-100 object-fit-cover">
+                        <span class="source-badge bg-primary"><i class="bi bi-patch-check-fill"></i> 言禾原创</span>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-title">零基础直达HSK 3级：情景对话速成</div>
+                        <div class="course-meta">
+                            <div class="d-flex align-items-center">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Teacher" class="teacher-avatar">
+                                <span>BSU教研组</span>
+                            </div>
+                            <span class="text-danger fw-bold">Free</span>
+                        </div>
+                        <div class="progress-sm">
+                            <div class="progress-bar-custom" style="width: 40%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2" style="font-size:10px; color:#999;">
+                            <span>已学 40%</span>
+                            <span>1.2k人学习</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="course-card">
+                    <div class="card-img-top">
+                        <img src="https://images.unsplash.com/photo-1523730205978-59fd1b2965e3?w=500&q=80" class="w-100 h-100 object-fit-cover">
+                        <span class="source-badge"><i class="bi bi-globe"></i> 来源：中国大学MOOC</span>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-title">中国古代建筑欣赏与历史文化</div>
+                        <div class="course-meta">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-building me-1"></i>
+                                <span>清华大学</span>
+                            </div>
+                            <span class="text-success">评分 4.9</span>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm w-100 mt-3 rounded-pill" style="font-size:12px;">加入学习列表</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="course-card">
+                    <div class="card-img-top">
+                        <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=500&q=80" class="w-100 h-100 object-fit-cover">
+                        <span class="source-badge bg-success"><i class="bi bi-graph-up"></i> 热门</span>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-title">Business Chinese: Email & Negotiation</div>
+                        <div class="course-meta">
+                            <div class="d-flex align-items-center">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Biz" class="teacher-avatar">
+                                <span>Prof. Wang</span>
+                            </div>
+                            <span class="text-danger fw-bold">¥ 99</span>
+                        </div>
+                        <div class="text-muted mt-2" style="font-size:11px;">适合：B1-B2水平 | 20课时</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="course-card">
+                    <div class="card-img-top">
+                        <img src="https://images.unsplash.com/photo-1533669955142-6a73332af4db?w=500&q=80" class="w-100 h-100 object-fit-cover">
+                        <span class="source-badge bg-warning text-dark"><i class="bi bi-mic-fill"></i> 方言</span>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-title">四川话入门：从“巴适”开始</div>
+                        <div class="course-meta">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-geo-alt"></i>
+                                <span>成都/重庆</span>
+                            </div>
+                            <span><i class="bi bi-people"></i> 8k+</span>
+                        </div>
+                        <button class="btn btn-outline-warning text-dark btn-sm w-100 mt-3 rounded-pill" style="font-size:12px;">去地图查看</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="course-card">
+                    <div class="card-img-top">
+                        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=500&q=80" class="w-100 h-100 object-fit-cover">
+                        <span class="source-badge"><i class="bi bi-youtube"></i> 来源：Bilibili</span>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-title">30天练就地道中文口语（搬运自频道X）</div>
+                        <div class="course-meta">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-play-btn me-1"></i>
+                                <span>UP主搬运</span>
+                            </div>
+                            <span class="text-muted">Free</span>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm w-100 mt-3 rounded-pill" style="font-size:12px;">跳转原视频</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="course-card">
+                    <div class="card-img-top">
+                        <img src="https://images.unsplash.com/photo-1513258496099-48168024aec0?w=500&q=80" class="w-100 h-100 object-fit-cover">
+                         <span class="source-badge bg-primary"><i class="bi bi-book"></i> 言禾原创</span>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-title">中国当代文学导读：莫言与余华</div>
+                        <div class="course-meta">
+                            <div class="d-flex align-items-center">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lit" class="teacher-avatar">
+                                <span>文学院</span>
+                            </div>
+                            <span class="text-danger fw-bold">¥ 199</span>
+                        </div>
+                         <div class="text-muted mt-2" style="font-size:11px;">含电子书 | 专家精讲</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="ai-sprite-container">
+        <div class="sprite-bubble">
+            👋 嘿！看到你对“四川话”感兴趣，要不要我教你两句？
+        </div>
+        <div class="sprite-avatar" onclick="alert('启动 AI 口语对话模式...')">
+            <i class="bi bi-robot"></i>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

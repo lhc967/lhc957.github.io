@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Task Hub - YanHe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #0052cc; --dark: #091e42; --bg-light: #f4f5f7; --success: #36b37e; }
+        body {
+            font-family: 'Inter', sans-serif;
+            padding-top: 76px;
+            background: var(--bg-light);
+            color: var(--dark);
+        }
+
+        /* Navbar */
+        .navbar-custom { background: rgba(255,255,255,0.98); border-bottom: 1px solid #eaeaea; height: 76px; z-index: 1000; }
+        .navbar-brand { font-weight: 900; font-size: 1.6rem; color: var(--primary) !important; letter-spacing: -0.5px; }
+        .nav-link { font-weight: 600; color: #505f79 !important; padding: 8px 15px !important; }
+        .nav-link:hover { color: var(--primary) !important; }
+        .nav-link.active { color: var(--primary) !important; }
+        .btn-nav-action { background: var(--primary); color: #fff; padding: 8px 20px; border-radius: 4px; font-weight: 600; text-decoration: none; transition: 0.2s; }
+        .btn-nav-action:hover { background: #0043a8; color: #fff; }
+
+        /* --- 1. Search Hero --- */
+        .search-hero { background: #fff; border-bottom: 1px solid #ebecf0; padding: 40px 0; }
+        .search-box {
+            position: relative; max-width: 700px; margin: 0 auto;
+        }
+        .search-input {
+            width: 100%; padding: 15px 20px 15px 50px; border-radius: 50px; border: 2px solid #ebecf0;
+            font-size: 1rem; transition: 0.3s;
+        }
+        .search-input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(0, 82, 204, 0.1); }
+        .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #6b778c; }
+        .btn-search {
+            position: absolute; right: 8px; top: 8px; bottom: 8px; background: var(--primary); color: #fff;
+            border: none; padding: 0 25px; border-radius: 30px; font-weight: 600; transition: 0.2s;
+        }
+        .btn-search:hover { background: #0043a8; }
+
+        /* --- 2. Main Layout (Sidebar + Feed) --- */
+        .main-container { max-width: 1200px; margin: 0 auto; padding: 30px 15px; }
+
+        /* Filters (Left Sidebar on Desktop, Top Scroll on Mobile) */
+        .filter-sidebar {
+            background: #fff; border-radius: 8px; border: 1px solid #ebecf0; padding: 20px;
+            position: sticky; top: 96px;
+        }
+        .filter-title { font-weight: 700; margin-bottom: 15px; font-size: 0.95rem; text-transform: uppercase; color: #6b778c; letter-spacing: 0.5px; }
+        .filter-group { margin-bottom: 25px; }
+        .form-check-label { color: #42526e; font-size: 0.95rem; cursor: pointer; }
+        .form-check-input:checked { background-color: var(--primary); border-color: var(--primary); }
+
+        /* Job Card */
+        .job-card {
+            background: #fff; border: 1px solid #ebecf0; border-radius: 12px; padding: 25px;
+            margin-bottom: 20px; transition: all 0.2s; cursor: pointer; position: relative;
+        }
+        .job-card:hover { border-color: #b3d4ff; box-shadow: 0 8px 24px rgba(0,0,0,0.06); transform: translateY(-2px); }
+
+        .job-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .job-title { font-size: 1.25rem; font-weight: 700; color: var(--primary); margin-bottom: 5px; line-height: 1.4; }
+        .job-meta { font-size: 0.85rem; color: #6b778c; display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+
+        .job-price { font-weight: 700; color: var(--dark); font-size: 1.1rem; }
+        .job-type { background: #ebecf0; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; color: #42526e; }
+
+        .job-desc { color: #42526e; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+
+        .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .job-tag { background: #f4f5f7; color: #505f79; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
+
+        .job-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ebecf0; padding-top: 15px; }
+        .client-info { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #6b778c; }
+        .verified-badge { color: var(--success); display: flex; align-items: center; gap: 4px; font-weight: 600; font-size: 0.8rem; }
+
+        /* Apply Button */
+        .btn-apply {
+            background: var(--success); color: #fff; border: none; padding: 8px 24px;
+            border-radius: 50px; font-weight: 600; font-size: 0.9rem; transition: 0.2s;
+        }
+        .btn-apply:hover { background: #228c60; transform: translateY(-1px); }
+
+        /* Right Sidebar (Promo) */
+        .promo-card {
+            background: linear-gradient(135deg, #091e42 0%, #253858 100%); color: #fff;
+            border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 20px;
+        }
+        .promo-btn {
+            background: #fff; color: var(--dark); border: none; padding: 10px 20px;
+            border-radius: 4px; font-weight: 700; width: 100%; margin-top: 15px; transition: 0.2s;
+        }
+        .promo-btn:hover { background: #deebff; color: var(--primary); }
+
+        /* Responsive Adjustments */
+        @media (max-width: 991px) {
+            .filter-col { display: none; } /* Hide filters on mobile for simplicity, or use a modal */
+            .right-col { display: none; }
+            .job-card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="index_en.html">YanHe</a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navEn">
+                <i class="bi bi-list fs-2 text-dark"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navEn">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="index_en.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="education_en.html">Courses</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="service_en.html">Task Hub</a></li>
+                    <li class="nav-item"><a class="nav-link" href="story_en.html">Community</a></li>
+                    <li class="nav-item"><a class="nav-link" href="culture_en.html">Map</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="service.html" class="nav-link px-0">中文版</a>
+                    <a href="login_en.html" class="btn-nav-action">Post a Job</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="search-hero">
+        <div class="container">
+            <h2 class="text-center fw-bold mb-4">Find work that inspires you</h2>
+            <div class="search-box">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search for translation, tutoring, or annotation jobs...">
+                <button class="btn-search">Search</button>
+            </div>
+            <div class="text-center mt-3 text-muted small">
+                Popular: <a href="#" class="text-primary text-decoration-none">Legal Translation</a>, <a href="#" class="text-primary text-decoration-none">HSK Tutor</a>, <a href="#" class="text-primary text-decoration-none">Voiceover</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="row">
+
+            <div class="col-lg-3 filter-col d-none d-lg-block">
+                <div class="filter-sidebar">
+                    <div class="filter-group">
+                        <div class="filter-title">Category</div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" checked id="cat1">
+                            <label class="form-check-label" for="cat1">Translation & Localization</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="cat2">
+                            <label class="form-check-label" for="cat2">Language Tutoring</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="cat3">
+                            <label class="form-check-label" for="cat3">AI Data Annotation</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-title">Job Type</div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="type1">
+                            <label class="form-check-label" for="type1">Fixed Price</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="type2">
+                            <label class="form-check-label" for="type2">Hourly Rate</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-title">Experience Level</div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="exp1">
+                            <label class="form-check-label" for="exp1">Entry Level</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" checked id="exp2">
+                            <label class="form-check-label" for="exp2">Intermediate</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="exp3">
+                            <label class="form-check-label" for="exp3">Expert</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold m-0">128 Jobs Found</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light border dropdown-toggle" type="button">Newest</button>
+                    </div>
+                </div>
+
+                <div class="job-card" onclick="alert('Apply for this job')">
+                    <div class="job-header">
+                        <div class="job-title">Legal Contract Translation (English to Chinese)</div>
+                        <div class="btn btn-light rounded-circle p-2 lh-1"><i class="bi bi-heart"></i></div>
+                    </div>
+                    <div class="job-meta">
+                        <span class="job-type">Fixed Price</span>
+                        <span class="text-muted">Posted 2h ago</span>
+                        <span class="text-muted"><i class="bi bi-geo-alt"></i> Remote</span>
+                    </div>
+                    <div class="job-desc">
+                        Looking for a native Chinese speaker with legal background to translate a 5,000-word service agreement. Accuracy and professional terminology are required.
+                    </div>
+                    <div class="tag-container">
+                        <span class="job-tag">Legal</span>
+                        <span class="job-tag">Translation</span>
+                        <span class="job-tag">HSK 6+</span>
+                    </div>
+                    <div class="job-footer">
+                        <div class="client-info">
+                            <div class="verified-badge"><i class="bi bi-patch-check-fill"></i> Payment Verified</div>
+                            <span class="ms-2 fw-bold text-dark">$500.00</span>
+                            <span class="ms-2 text-muted">Est. Budget</span>
+                        </div>
+                        <button class="btn-apply">Apply Now</button>
+                    </div>
+                </div>
+
+                <div class="job-card">
+                    <div class="job-header">
+                        <div class="job-title">Business Chinese Tutor for CEO</div>
+                        <div class="btn btn-light rounded-circle p-2 lh-1"><i class="bi bi-heart"></i></div>
+                    </div>
+                    <div class="job-meta">
+                        <span class="job-type">Hourly: $30-$50</span>
+                        <span class="text-muted">Posted 5h ago</span>
+                    </div>
+                    <div class="job-desc">
+                        Seeking an experienced tutor to help prepare for business negotiations in Shanghai. Focus on oral practice and etiquette.
+                    </div>
+                    <div class="tag-container">
+                        <span class="job-tag">Tutoring</span>
+                        <span class="job-tag">Business</span>
+                        <span class="job-tag">Oral</span>
+                    </div>
+                    <div class="job-footer">
+                        <div class="client-info">
+                            <div class="verified-badge"><i class="bi bi-patch-check-fill"></i> Payment Verified</div>
+                            <span class="ms-2">🇺🇸 United States</span>
+                        </div>
+                        <button class="btn-apply">Apply Now</button>
+                    </div>
+                </div>
+
+                <div class="job-card">
+                    <div class="job-header">
+                        <div class="job-title">Voice Recording for AI Training (Sichuan Dialect)</div>
+                        <div class="btn btn-light rounded-circle p-2 lh-1"><i class="bi bi-heart"></i></div>
+                    </div>
+                    <div class="job-meta">
+                        <span class="job-type">Fixed: $50</span>
+                        <span class="text-muted">Posted 1d ago</span>
+                    </div>
+                    <div class="job-desc">
+                        Simple task! Record 100 sentences in authentic Sichuan dialect using our app. Open to beginners.
+                    </div>
+                    <div class="tag-container">
+                        <span class="job-tag">Data Collection</span>
+                        <span class="job-tag">Dialect</span>
+                        <span class="job-tag">No Experience</span>
+                    </div>
+                    <div class="job-footer">
+                        <div class="client-info">
+                            <div class="verified-badge"><i class="bi bi-patch-check-fill"></i> Payment Verified</div>
+                            <span class="ms-2">🇨🇳 Tech Co.</span>
+                        </div>
+                        <button class="btn-apply">Apply Now</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-3 right-col d-none d-lg-block">
+                <div class="promo-card">
+                    <h5 class="fw-bold mb-3">Post a Job</h5>
+                    <p class="small opacity-75">Connect with the best Chinese language talent in minutes.</p>
+                    <a href="login_en.html" class="promo-btn">Post Now</a>
+                </div>
+
+                <div class="bg-white border rounded-3 p-3">
+                    <h6 class="fw-bold mb-3">Safety Tips</h6>
+                    <ul class="list-unstyled small text-muted mb-0">
+                        <li class="mb-2"><i class="bi bi-shield-check text-success me-2"></i> Keep communication on YanHe</li>
+                        <li class="mb-2"><i class="bi bi-shield-check text-success me-2"></i> Never pay outside the platform</li>
+                        <li><i class="bi bi-shield-check text-success me-2"></i> Report suspicious activity</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

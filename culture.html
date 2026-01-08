@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>方言文化地图 Pro - 言禾 YanHe</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://assets.pyecharts.org/assets/maps/china.js"></script>
+
+    <style>
+        /* --- 基础样式 --- */
+        :root { --primary: #004aad; --accent: #ff6b00; --gold: #d4af37; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            padding-top: 70px; background: #f8faff; overflow: hidden; height: 100vh;
+        }
+
+        /* 导航栏 */
+        .navbar-custom { background: rgba(255,255,255,0.98); box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: 70px; z-index: 1000; }
+        .navbar-brand { font-weight: 900; background: linear-gradient(135deg, #004aad 0%, #0078ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-link { font-weight: 600; color: #555 !important; padding: 8px 15px !important; }
+        .nav-link.active { color: var(--primary) !important; font-weight: 800; }
+
+        /* Pro 切换 */
+        .mode-switch-container {
+            position: absolute; top: 90px; left: 50%; transform: translateX(-50%); z-index: 50;
+            background: #fff; padding: 4px; border-radius: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); display: flex; gap: 4px;
+        }
+        .mode-btn {
+            border: none; padding: 6px 20px; border-radius: 25px; font-weight: 700; font-size: 13px;
+            background: transparent; color: #666; transition: 0.3s;
+        }
+        .mode-btn.active { background: #eee; color: #333; }
+        .mode-btn.pro-active { background: linear-gradient(135deg, #111, #333); color: #ffd700; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .pro-badge { background: linear-gradient(90deg, #ffd700, #ffaa00); color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: top; }
+
+        /* 地图与图例 */
+        .map-container { width: 100%; height: 100%; }
+        .legend-panel {
+            position: absolute; top: 90px; left: 20px; z-index: 40;
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(4px);
+            padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: 160px;
+        }
+        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .dot-red { background: #ff4d4f; animation: pulse 2s infinite; }
+        .dot-blue { background: var(--primary); }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* --- 抽屉 (Drawer) --- */
+        .content-drawer {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: #fff; border-radius: 24px 24px 0 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+            transform: translateY(110%); transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            z-index: 100; height: 80vh; display: flex; flex-direction: column; overflow: hidden;
+        }
+        .content-drawer.show { transform: translateY(0); }
+
+        .drawer-hero {
+            height: 160px; position: relative; color: #fff; flex-shrink: 0;
+            background-size: cover; background-position: center; transition: background-image 0.3s;
+        }
+        .drawer-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.8)); }
+        .hero-content { position: absolute; bottom: 15px; left: 20px; right: 20px; z-index: 2; }
+        .hero-title { font-size: 26px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .btn-close-custom {
+            position: absolute; top: 15px; right: 15px; z-index: 10;
+            background: rgba(0,0,0,0.3); border-radius: 50%; padding: 8px; color: #fff;
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+
+        .nav-tabs-custom { display: flex; border-bottom: 1px solid #eee; padding: 0 10px; flex-shrink: 0; background: #fff; }
+        .tab-link {
+            padding: 15px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; font-size: 14px; flex: 1; text-align: center;
+        }
+        .tab-link.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-link.pro-tab.active { color: #d4af37; border-bottom-color: #d4af37; }
+
+        .drawer-body { flex: 1; overflow-y: auto; padding: 20px; background: #fff; }
+        .tab-pane { display: none; animation: fadeIn 0.3s; }
+        .tab-pane.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 内容元素样式 */
+        .culture-item { display: flex; gap: 15px; background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 12px; margin-bottom: 15px; align-items: center; }
+        .culture-thumb { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+        .dialect-word { color: var(--primary); font-weight: 800; font-size: 16px; margin-right: 5px; }
+
+        /* 场景对话 */
+        .scenario-box { background: #f9f9f9; border-radius: 12px; padding: 15px; position: relative; }
+        .chat-row { margin-bottom: 12px; display: flex; flex-direction: column; }
+        .chat-bubble { padding: 10px 14px; border-radius: 12px; font-size: 14px; max-width: 90%; }
+        .chat-npc { background: #fff; border: 1px solid #eee; align-self: flex-start; }
+        .chat-user { background: #e3f2fd; color: #004aad; align-self: flex-end; }
+        .dialect-highlight { color: #d63384; font-weight: bold; }
+        .pro-mask { filter: blur(4px); opacity: 0.5; pointer-events: none; }
+
+        /* --- AI 测评区核心样式 --- */
+        .ai-challenge-card {
+            background: #fff; border: 1px solid #eee; border-radius: 16px; padding: 20px;
+            text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 20px;
+        }
+        .target-sentence { font-size: 24px; font-weight: 900; color: #333; margin: 15px 0; }
+        .mic-btn-wrapper {
+            position: relative; width: 80px; height: 80px; margin: 0 auto;
+        }
+        .mic-btn {
+            width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: #fff;
+            display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 74, 173, 0.4); z-index: 2; position: relative; transition: all 0.3s;
+        }
+        .mic-btn.recording { background: #ff4d4f; box-shadow: 0 5px 15px rgba(255, 77, 79, 0.4); transform: scale(1.1); }
+
+        /* 录音波纹动画 */
+        .mic-wave {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%;
+            background: rgba(255, 77, 79, 0.3); z-index: 1; display: none;
+        }
+        .mic-btn.recording + .mic-wave { display: block; animation: wave-anim 1.5s infinite ease-out; }
+        @keyframes wave-anim { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+
+        /* 声波可视化 */
+        .voice-visualizer {
+            height: 40px; display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 20px; opacity: 0; transition: opacity 0.3s;
+        }
+        .bar { width: 4px; background: var(--primary); border-radius: 2px; animation: sound-jump 0.5s infinite ease-in-out alternate; }
+        @keyframes sound-jump { 0% { height: 10px; } 100% { height: 35px; } }
+
+        /* 评分结果 */
+        .ai-result-box { display: none; animation: slideUp 0.5s; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .score-circle {
+            width: 100px; height: 100px; border-radius: 50%; border: 5px solid #4caf50;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            margin: 0 auto 15px; color: #4caf50;
+        }
+        .score-num { font-size: 32px; font-weight: 900; line-height: 1; }
+        .score-label { font-size: 10px; text-transform: uppercase; }
+
+        .dimension-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; }
+        .progress-slim { height: 6px; border-radius: 3px; background: #eee; width: 70%; }
+        .progress-fill { height: 100%; border-radius: 3px; background: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="index.html">言禾 YanHe</a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <i class="bi bi-list fs-5"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">首页</a></li>
+                    <li class="nav-item"><a class="nav-link" href="story.html">中国故事</a></li>
+                    <li class="nav-item"><a class="nav-link" href="education.html">教育云</a></li>
+                    <li class="nav-item"><a class="nav-link" href="service.html">任务大厅</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="culture.html">方言地图</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mode-switch-container">
+        <button class="mode-btn active" id="btnStd" onclick="togglePro(false)">探索模式</button>
+        <button class="mode-btn" id="btnPro" onclick="togglePro(true)">Pro 挑战 <span class="pro-badge">VIP</span></button>
+    </div>
+
+    <div class="legend-panel d-none d-md-block">
+        <div style="font-size:12px; color:#666; margin-bottom:5px;"><span class="dot dot-red"></span> 当前定位 (GPS)</div>
+        <div style="font-size:12px; color:#666;"><span class="dot dot-blue"></span> <strong>点击探索方言</strong></div>
+    </div>
+
+    <div class="map-container">
+        <div id="china-map" style="width: 100%; height: 100%;"></div>
+    </div>
+
+    <div class="content-drawer" id="drawer">
+        <div class="drawer-hero" id="heroBg" style="background-image: url('');">
+            <div class="btn-close-custom" onclick="closeDrawer()"><i class="bi bi-x-lg"></i></div>
+            <div class="hero-content">
+                <h2 class="hero-title" id="dCity">加载中...</h2>
+                <div class="hero-tags" id="dTags"></div>
+            </div>
+        </div>
+
+        <div class="nav-tabs-custom">
+            <div class="tab-link active" onclick="switchTab('culture')">文化与词汇</div>
+            <div class="tab-link pro-tab" onclick="switchTab('scenario')"><i class="bi bi-trophy-fill small"></i> 生存挑战</div>
+            <div class="tab-link pro-tab" onclick="switchTab('ai')"><i class="bi bi-mic-fill small"></i> AI语音测评</div>
+        </div>
+
+        <div class="drawer-body">
+            <div id="tab-culture" class="tab-pane active">
+                <p class="small text-muted mb-3" id="dIntro"></p>
+                <h6 class="fw-bold mb-3 border-start border-4 border-primary ps-2">必学：地道文化词</h6>
+                <div id="cultureList"></div>
+            </div>
+
+            <div id="tab-scenario" class="tab-pane">
+                <div class="scenario-box">
+                    <div class="scenario-header">
+                        <div><h6 class="fw-bold mb-0" id="sTitle"></h6><span class="badge bg-warning text-dark" style="font-size:10px;">LV.2</span></div>
+                        <div class="text-end"><small class="fw-bold text-success">目标：完成对话</small></div>
+                    </div>
+                    <div id="scenarioContent" class="pro-mask"></div>
+                    <div id="proLock" class="pro-overlay">
+                        <div class="bg-white p-4 rounded-4 shadow text-center border">
+                            <i class="bi bi-lock-fill fs-1 text-warning mb-2"></i>
+                            <h6 class="fw-bold">Pro 会员专享</h6>
+                            <button class="btn btn-dark btn-sm rounded-pill w-100" onclick="togglePro(true)">解锁</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-ai" class="tab-pane">
+                <div class="ai-challenge-card">
+                    <span class="badge bg-primary bg-opacity-10 text-primary mb-3">AI 纠音实验室</span>
+                    <p class="text-muted small">请按住按钮，用方言大声朗读下方的句子：</p>
+
+                    <div class="target-sentence" id="aiTarget">巴适得板</div>
+                    <p class="small text-muted mb-4" id="aiMeaning">（意思：非常舒服、很好）</p>
+
+                    <div class="mic-btn-wrapper">
+                        <div class="mic-btn" id="micBtn" onmousedown="startRecord()" onmouseup="stopRecord()" ontouchstart="startRecord()" ontouchend="stopRecord()">
+                            <i class="bi bi-mic-fill"></i>
+                        </div>
+                        <div class="mic-wave"></div>
+                    </div>
+                    <p class="mt-3 small text-muted" id="micStatus">按住 说话</p>
+
+                    <div class="voice-visualizer" id="visualizer">
+                        <div class="bar" style="animation-delay: 0.1s"></div>
+                        <div class="bar" style="animation-delay: 0.3s"></div>
+                        <div class="bar" style="animation-delay: 0.0s"></div>
+                        <div class="bar" style="animation-delay: 0.4s"></div>
+                        <div class="bar" style="animation-delay: 0.2s"></div>
+                    </div>
+
+                    <div class="ai-result-box mt-4 border-top pt-4" id="aiResult">
+                        <div class="d-flex align-items-center justify-content-center gap-4">
+                            <div class="score-circle">
+                                <span class="score-num">92</span>
+                                <span class="score-label">总分</span>
+                            </div>
+                            <div class="flex-grow-1 text-start">
+                                <div class="dimension-row">
+                                    <span>发音准确度</span>
+                                    <div class="progress-slim"><div class="progress-fill" style="width: 95%"></div></div>
+                                </div>
+                                <div class="dimension-row">
+                                    <span>声调还原</span>
+                                    <div class="progress-slim"><div class="progress-fill bg-warning" style="width: 85%"></div></div>
+                                </div>
+                                <div class="dimension-row">
+                                    <span>流利度</span>
+                                    <div class="progress-slim"><div class="progress-fill bg-info" style="width: 90%"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-success small mb-0 mt-2">
+                            <i class="bi bi-stars"></i> <strong>AI 点评：</strong><br>
+                            发音非常地道！“巴适”的声调掌握得很精准，简直就是本地人！
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 核心数据配置 ---
+        const cityData = {
+            '成都': {
+                city: '四川 · 成都', tags: ['西南官话', '火锅', '安逸'],
+                bg: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=600',
+                intro: '成都方言以幽默著称。在成都，"吃"是头等大事。',
+                cultureItems: [
+                    { title: '麻辣火锅', img: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=200', word: '油碟', pinyin: 'You Die', desc: '吃火锅必配的香油蒜泥蘸料。' },
+                    { title: '茶馆文化', img: 'https://images.unsplash.com/photo-1557992260-ec58e38d363c?w=200', word: '龙门阵', pinyin: 'Long Men Zhen', desc: '意为聚在一起聊天。' }
+                ],
+                scenario: {
+                    title: '挑战：点一份微辣锅',
+                    chats: [
+                        {role: 'npc', text: '帅哥，几位？坐大厅还是包间？'},
+                        {role: 'user', text: '三位，坐外面，<span class="dialect-highlight">透气 (Tou Qi)</span>。'},
+                        {role: 'npc', text: '<span class="dialect-highlight">要得</span>。锅底要啥子味道？'},
+                        {role: 'user', text: '来个<span class="dialect-highlight">鸳鸯锅</span>，红汤要<span class="dialect-highlight">微辣</span>！'}
+                    ]
+                },
+                aiChallenge: { word: '巴适得板', meaning: '（意思：非常舒服、很好）' }
+            },
+            '上海': {
+                city: '上海 (Shanghai)', tags: ['吴语区', '外滩', '精致'],
+                bg: 'https://images.unsplash.com/photo-1548919973-5cef591cdbc9?w=600',
+                intro: '上海话保留了古浊音，听起来软糯但语速较快。',
+                cultureItems: [
+                    { title: '生煎', img: 'https://images.unsplash.com/photo-1563245372-f21720e38c4d?w=200', word: '米道', pinyin: 'Mi Dao', desc: '意为味道。' },
+                    { title: '打招呼', img: 'https://images.unsplash.com/photo-1505991754094-9c87895e6e8e?w=200', word: '侬好', pinyin: 'Nong Ho', desc: '最标准的“你好”。' }
+                ],
+                scenario: {
+                    title: '挑战：便利店买水',
+                    chats: [
+                        {role: 'npc', text: '你好，一共十五块五。'},
+                        {role: 'user', text: '<span class="dialect-highlight">微信</span> 支付可以伐？'},
+                        {role: 'npc', text: '可以的。要<span class="dialect-highlight">袋子</span>伐？'},
+                        {role: 'user', text: '<span class="dialect-highlight">覅 (Fiao)</span>了，谢谢。'}
+                    ]
+                },
+                aiChallenge: { word: '侬饭吃过伐？', meaning: '（意思：你吃饭了吗？）' }
+            },
+            '广州': {
+                city: '广东 · 广州', tags: ['粤语', '早茶', '务实'],
+                bg: 'https://images.unsplash.com/photo-1583248369069-9d91f1640fe6?w=600',
+                intro: '“得闲饮茶”是广州人的生活哲学。粤语的九声六调保留了古汉语的韵味。',
+                cultureItems: [
+                    { title: '早茶', img: 'https://images.unsplash.com/photo-1595052953507-954992524d77?w=200', word: '一盅两件', pinyin: 'Yat Zung', desc: '一壶茶配两个点心。' },
+                    { title: '买单', img: 'https://images.unsplash.com/photo-1562967663-8a9d18f50c76?w=200', word: '埋单', pinyin: 'Mai Dan', desc: '结账。' }
+                ],
+                scenario: {
+                    title: '挑战：茶楼点单',
+                    chats: [
+                        {role: 'npc', text: '靓仔，饮咩茶？普洱定系铁观音？'},
+                        {role: 'user', text: '<span class="dialect-highlight">普洱</span>，唔该。'},
+                        {role: 'npc', text: '要食点什么？'},
+                        {role: 'user', text: '一笼<span class="dialect-highlight">虾饺</span>，一碟<span class="dialect-highlight">凤爪</span>。'}
+                    ]
+                },
+                aiChallenge: { word: '恭喜发财', meaning: '（意思：Gung Hei Fat Choy）' }
+            }
+        };
+
+        // --- 地图初始化 ---
+        var myChart = echarts.init(document.getElementById('china-map'));
+        var option = {
+            geo: {
+                map: 'china', roam: true, zoom: 1.2, label: {show:false},
+                itemStyle: { areaColor: '#e0eaff', borderColor: '#fff' },
+                emphasis: { itemStyle: { areaColor: '#b3c7f7' } }
+            },
+            series: [
+                {
+                    type: 'effectScatter', coordinateSystem: 'geo',
+                    data: [{name:'成都',value:[104.06,30.67]},{name:'上海',value:[121.47,31.23]},{name:'广州',value:[113.26,23.12]}],
+                    symbolSize: 20, itemStyle: { color: '#004aad' }, rippleEffect: {brushType:'stroke', scale:4}
+                },
+                {
+                    type: 'effectScatter', coordinateSystem: 'geo',
+                    data: [{name:'北京',value:[116.40,39.90]}],
+                    symbolSize: 20, itemStyle: { color: '#ff4d4f' }, rippleEffect: {color:'#ff4d4f', brushType:'stroke', scale:6}
+                }
+            ]
+        };
+        myChart.setOption(option);
+
+        myChart.on('click', function(params) {
+            if(params.seriesIndex === 0) {
+                renderDrawer(params.data.name);
+                document.getElementById('drawer').classList.add('show');
+            }
+        });
+
+        // --- 渲染逻辑 ---
+        function renderDrawer(cityName) {
+            const data = cityData[cityName] || cityData['成都'];
+
+            // Header
+            document.getElementById('heroBg').style.backgroundImage = `url('${data.bg}')`;
+            document.getElementById('dCity').innerText = data.city;
+            document.getElementById('dTags').innerHTML = data.tags.map(t=>`<span>${t}</span>`).join('');
+
+            // Culture
+            document.getElementById('dIntro').innerText = data.intro;
+            document.getElementById('cultureList').innerHTML = data.cultureItems.map(item => `
+                <div class="culture-item">
+                    <img src="${item.img}" class="culture-thumb">
+                    <div class="culture-info">
+                        <h6>${item.title}</h6>
+                        <div><span class="dialect-word">${item.word}</span> <span class="pinyin">${item.pinyin}</span> <i class="bi bi-volume-up-fill play-icon-sm"></i></div>
+                        <div class="small text-muted mt-1">${item.desc}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Scenario
+            document.getElementById('sTitle').innerText = data.scenario.title;
+            document.getElementById('scenarioContent').innerHTML = data.scenario.chats.map(chat => `
+                <div class="chat-row">
+                    <div class="small text-muted mb-1 ${chat.role==='user'?'text-end':''}">${chat.role==='user'?'你 (Player)':'NPC'}</div>
+                    <div class="chat-bubble ${chat.role==='user'?'chat-user':'chat-npc'}">${chat.text}</div>
+                </div>
+            `).join('');
+
+            // AI Challenge
+            document.getElementById('aiTarget').innerText = data.aiChallenge.word;
+            document.getElementById('aiMeaning').innerText = data.aiChallenge.meaning;
+
+            // 重置 AI 界面状态
+            document.getElementById('aiResult').style.display = 'none';
+            document.getElementById('visualizer').style.opacity = '0';
+            document.getElementById('micStatus').innerText = '按住 说话';
+
+            switchTab('culture');
+        }
+
+        // --- AI 录音模拟逻辑 ---
+        let recordTimer;
+        function startRecord() {
+            document.getElementById('micBtn').classList.add('recording');
+            document.getElementById('micStatus').innerText = '正在聆听...';
+            document.getElementById('visualizer').style.opacity = '1';
+            // 隐藏上一次的结果
+            document.getElementById('aiResult').style.display = 'none';
+        }
+
+        function stopRecord() {
+            document.getElementById('micBtn').classList.remove('recording');
+            document.getElementById('micStatus').innerText = '正在分析声纹...';
+            document.getElementById('visualizer').style.opacity = '0';
+
+            // 模拟分析延迟
+            setTimeout(() => {
+                document.getElementById('micStatus').innerText = '分析完成';
+                document.getElementById('aiResult').style.display = 'block';
+            }, 1500);
+        }
+
+        // --- 通用交互 ---
+        function closeDrawer() { document.getElementById('drawer').classList.remove('show'); }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el=>el.classList.remove('active'));
+            document.getElementById('tab-'+tabId).classList.add('active');
+            document.querySelectorAll('.tab-link').forEach(el=>el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        function togglePro(active) {
+            const btnStd = document.getElementById('btnStd');
+            const btnPro = document.getElementById('btnPro');
+            const lock = document.getElementById('proLock');
+            const content = document.getElementById('scenarioContent');
+
+            if(active) {
+                btnStd.classList.remove('active');
+                btnPro.classList.add('pro-active');
+                if(lock) lock.style.display = 'none';
+                if(content) content.classList.remove('pro-mask');
+            } else {
+                btnStd.classList.add('active');
+                btnPro.classList.remove('pro-active');
+                if(lock) lock.style.display = 'flex';
+                if(content) content.classList.add('pro-mask');
+            }
+        }
+
+        window.addEventListener('resize', () => myChart.resize());
+    </script>
+</body>
+</html>

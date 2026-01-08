@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布中心 - 言禾 YanHe</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #004aad; --accent: #ff6b00; --bg-light: #f8faff; }
+        body {
+            font-family: -apple-system, "PingFang SC", sans-serif;
+            background: var(--bg-light); padding-top: 70px; color: #333;
+        }
+
+        /* 导航栏 */
+        .navbar-custom { background: #fff; box-shadow: 0 1px 5px rgba(0,0,0,0.05); height: 70px; z-index: 1000; }
+        .navbar-brand {
+            font-weight: 900; background: linear-gradient(135deg, #004aad 0%, #0078ff 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        /* 布局容器 */
+        .publish-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+
+        /* 一级身份切换 (买家/卖家) */
+        .role-switch-wrapper {
+            display: flex; gap: 20px; margin-bottom: 30px;
+        }
+        .role-card {
+            flex: 1; background: #fff; border: 2px solid transparent; border-radius: 12px;
+            padding: 20px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03); opacity: 0.7; grayscale: 100%; position: relative; overflow: hidden;
+        }
+        .role-card:hover { transform: translateY(-3px); }
+        .role-card.active {
+            border-color: var(--primary); opacity: 1; grayscale: 0%;
+            background: rgba(0, 74, 173, 0.03); box-shadow: 0 8px 20px rgba(0, 74, 173, 0.1);
+        }
+        .role-card.active .check-icon { display: block; }
+        .role-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; }
+        .bg-client { background: linear-gradient(135deg, #004aad, #0078ff); }
+        .bg-freelancer { background: linear-gradient(135deg, #ff6b00, #ff9f43); }
+        .check-icon { color: var(--primary); font-size: 20px; position: absolute; top: 10px; right: 10px; display: none; }
+
+        /* 二级身份切换 (企业/个人) - 新增 */
+        .sub-type-group { display: flex; gap: 15px; margin-bottom: 25px; }
+        .sub-type-label {
+            flex: 1; border: 1px solid #dee2e6; border-radius: 8px; padding: 10px; text-align: center;
+            cursor: pointer; transition: 0.2s; font-size: 14px; color: #666; background: #fcfcfc;
+        }
+        .sub-type-label:hover { background: #f0f0f0; }
+        .sub-type-input { display: none; }
+        .sub-type-input:checked + .sub-type-label {
+            background: #e3f2fd; border-color: var(--primary); color: var(--primary); font-weight: bold;
+        }
+        .sub-type-label i { margin-right: 5px; font-size: 16px; }
+
+        /* 表单区域 */
+        .form-card {
+            background: #fff; border-radius: 16px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .form-label { font-weight: 600; color: #444; margin-bottom: 8px; font-size: 14px; }
+        .form-control, .form-select {
+            padding: 12px; border-radius: 8px; border: 1px solid #dee2e6; background: #fff;
+        }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0, 74, 173, 0.1); }
+
+        /* AI 辅助按钮 */
+        .ai-btn {
+            font-size: 12px; background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
+            color: #fff; border: none; padding: 4px 12px; border-radius: 20px;
+            display: inline-flex; align-items: center; gap: 4px; cursor: pointer; transition: 0.3s;
+            float: right; margin-top: -28px; position: relative; z-index: 5;
+        }
+        .ai-btn:hover { opacity: 0.9; box-shadow: 0 4px 10px rgba(37, 117, 252, 0.3); }
+
+        /* 价格估算器 */
+        .price-estimator {
+            background: #f8f9fa; border: 1px dashed #ced4da; border-radius: 8px;
+            padding: 12px; margin-top: 10px; font-size: 13px; color: #666;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        /* 底部操作栏 */
+        .action-bar { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-next {
+            background: var(--primary); color: #fff; padding: 12px 40px; border-radius: 50px;
+            font-weight: bold; border: none; transition: 0.3s;
+        }
+        .btn-next:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 74, 173, 0.3); }
+
+        .d-none-custom { display: none; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="index.html">言禾 YanHe</a>
+            <div class="ms-auto">
+                <a href="service.html" class="btn btn-outline-secondary btn-sm rounded-pill px-3">取消</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="publish-container">
+        <h2 class="fw-bold mb-4 text-center">发布中心</h2>
+
+        <div class="role-switch-wrapper">
+            <div class="role-card active" id="roleClient" onclick="switchRole('client')">
+                <div class="role-icon bg-client"><i class="bi bi-briefcase"></i></div>
+                <div>
+                    <div class="fw-bold">我是雇主 (需求方)</div>
+                    <div class="small text-muted">企业招聘 / 个人找服务</div>
+                </div>
+                <i class="bi bi-check-circle-fill check-icon"></i>
+            </div>
+
+            <div class="role-card" id="roleFreelancer" onclick="switchRole('freelancer')">
+                <div class="role-icon bg-freelancer"><i class="bi bi-person-workspace"></i></div>
+                <div>
+                    <div class="fw-bold">我是人才 (供给方)</div>
+                    <div class="small text-muted">学生兼职 / 专家接单</div>
+                </div>
+                <i class="bi bi-check-circle-fill check-icon"></i>
+            </div>
+        </div>
+
+        <div class="form-card">
+
+            <div id="formClient">
+
+                <div class="mb-4">
+                    <label class="form-label">发布身份</label>
+                    <div class="sub-type-group">
+                        <label class="flex-fill">
+                            <input type="radio" name="clientType" class="sub-type-input" checked onchange="toggleCompanyFields(true)">
+                            <div class="sub-type-label"><i class="bi bi-building"></i> 企业/机构 (B2B)</div>
+                        </label>
+                        <label class="flex-fill">
+                            <input type="radio" name="clientType" class="sub-type-input" onchange="toggleCompanyFields(false)">
+                            <div class="sub-type-label"><i class="bi bi-person"></i> 个人雇主 (C2C)</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="companyFields" class="mb-4">
+                    <label class="form-label">企业名称 <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" placeholder="请输入营业执照上的全称" value="北京言禾教育科技有限公司">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">需求标题</label>
+                    <input type="text" class="form-control" id="taskTitle" placeholder="例如：急需商务陪同口译 (HSK 6级)">
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">业务类型</label>
+                        <select class="form-select">
+                            <option>笔译 (Translation)</option>
+                            <option>口译 (Interpretation)</option>
+                            <option>本地化 (Localization)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">交付/工作周期</label>
+                        <select class="form-select">
+                            <option>3 天内 (加急)</option>
+                            <option>7 天内</option>
+                            <option>长期合作</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4 position-relative">
+                    <label class="form-label">需求详情</label>
+                    <button class="ai-btn" onclick="aiGenerateDesc()"><i class="bi bi-stars"></i> AI 智能扩写</button>
+                    <textarea class="form-control" id="taskDesc" rows="5" placeholder="请详细描述工作内容、背景要求、交付标准..."></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">预算金额 (元)</label>
+                    <div class="input-group">
+                        <span class="input-group-text">¥</span>
+                        <input type="number" class="form-control" id="budgetInput" placeholder="0.00">
+                    </div>
+                    <div class="price-estimator">
+                        <span><i class="bi bi-info-circle"></i> <span id="budgetTip">建议使用对公账户支付，平台可开具专票。</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="formFreelancer" class="d-none-custom">
+                <div class="alert alert-warning border-0 small mb-4">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i> 请确保您已完成实名认证和学历认证。
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">服务名称</label>
+                    <input type="text" class="form-control" placeholder="例如：资深法律文件翻译 (5年经验)">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">核心优势 (Tags)</label>
+                    <input type="text" class="form-control" placeholder="例如：CATTI一级, 专八, 擅长合同">
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">期望报价</label>
+                        <div class="input-group">
+                            <span class="input-group-text">¥</span>
+                            <input type="number" class="form-control" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">单位</label>
+                        <select class="form-select">
+                            <option>/ 千字</option>
+                            <option>/ 小时</option>
+                            <option>/ 天</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4 position-relative">
+                    <label class="form-label">服务介绍 / 简历摘要</label>
+                    <button class="ai-btn" onclick="alert('AI 已根据您的简历提取亮点')"><i class="bi bi-magic"></i> 简历导入</button>
+                    <textarea class="form-control" rows="5" placeholder="请展示您的专业能力、项目经验..."></textarea>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="action-bar">
+                <div class="text-muted small">
+                    <span class="text-primary fw-bold">1. 填写信息</span>
+                    <i class="bi bi-chevron-right mx-2"></i>
+                    <span>2. 托管/发布</span>
+                </div>
+                <button class="btn-next" onclick="handleSubmit()">下一步 <i class="bi bi-arrow-right"></i></button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentRole = 'client';
+        let isCompany = true;
+
+        function switchRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-card').forEach(el => el.classList.remove('active'));
+            document.getElementById('role' + capitalize(role)).classList.add('active');
+
+            if (role === 'client') {
+                document.getElementById('formClient').classList.remove('d-none-custom');
+                document.getElementById('formFreelancer').classList.add('d-none-custom');
+            } else {
+                document.getElementById('formClient').classList.add('d-none-custom');
+                document.getElementById('formFreelancer').classList.remove('d-none-custom');
+            }
+        }
+
+        // 切换 企业/个人 字段
+        function toggleCompanyFields(isCompanySelected) {
+            isCompany = isCompanySelected;
+            const field = document.getElementById('companyFields');
+            const tip = document.getElementById('budgetTip');
+
+            if (isCompany) {
+                field.style.display = 'block';
+                tip.innerText = '建议使用对公账户支付，平台可开具专票。';
+            } else {
+                field.style.display = 'none';
+                tip.innerText = '资金将托管至平台，验收满意后打款，保障资金安全。';
+            }
+        }
+
+        function aiGenerateDesc() {
+            const btn = document.querySelector('.ai-btn');
+            const textarea = document.getElementById('taskDesc');
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> 生成中...';
+            setTimeout(() => {
+                textarea.value = isCompany
+                    ? "【项目背景】\n本公司需招募一名商务口译，负责接待德国客户。\n\n【岗位职责】\n1. 负责商务会议的现场交替传译。\n2. 协助草拟会议纪要。\n\n【任职要求】\n1. 德语专业八级或同等水平。\n2. 有汽车行业翻译经验者优先。"
+                    : "【个人需求】\n我想找人帮忙翻译一篇关于“中国传统建筑”的论文摘要，大约 500 字。\n\n【要求】\n英语母语者优先，需要用地道的学术表达。希望 3 天内能给稿。";
+
+                btn.innerHTML = '<i class="bi bi-check"></i> 已生成';
+                btn.classList.add('btn-success');
+
+                // 自动填个估价
+                document.getElementById('budgetInput').value = isCompany ? 1500 : 300;
+            }, 800);
+        }
+
+        function handleSubmit() {
+            const btn = document.querySelector('.btn-next');
+            btn.innerText = '处理中...';
+            setTimeout(() => {
+                if(currentRole === 'client') {
+                    // 企业去 B端支付，个人去 C端支付 (模拟)
+                    alert(isCompany ? '🏢 跳转至企业收银台 (支持对公转账)...' : '👤 跳转至快捷收银台...');
+                    window.location.href = 'checkout.html';
+                } else {
+                    alert('🎉 服务发布成功！等待审核。');
+                    window.location.href = 'service.html';
+                }
+            }, 1000);
+        }
+
+        function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+    </script>
+</body>
+</html>

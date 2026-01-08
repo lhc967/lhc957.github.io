@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Review - YanHe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #0052cc; --dark: #091e42; --bg-light: #f4f5f7; --success: #36b37e; --danger: #de350b; --warning: #ffab00; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            height: 100vh; overflow: hidden; /* Prevent scrolling for immersive feel */
+            display: flex; flex-direction: column;
+        }
+
+        /* Minimal Header */
+        .review-header {
+            padding: 15px 30px; background: #fff; border-bottom: 1px solid #ebecf0;
+            display: flex; justify-content: space-between; align-items: center; height: 70px;
+        }
+        .close-btn { color: #5e6c84; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .close-btn:hover { color: var(--dark); transform: scale(1.1); }
+
+        /* Progress Bar */
+        .progress-container { width: 300px; }
+        .progress-custom { height: 8px; background: #ebecf0; border-radius: 4px; overflow: hidden; }
+        .progress-bar-custom { height: 100%; background: var(--success); width: 20%; transition: width 0.5s ease; }
+        .progress-text { font-size: 0.8rem; color: #6b778c; text-align: center; margin-top: 5px; font-weight: 600; }
+
+        /* Main Stage */
+        .review-stage {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            perspective: 1000px; /* Essential for 3D flip */
+            padding-bottom: 80px; /* Space for footer */
+        }
+
+        /* Flashcard Container */
+        .flashcard {
+            width: 100%; max-width: 600px; height: 350px; cursor: pointer;
+            position: relative; transform-style: preserve-3d; transition: transform 0.6s;
+        }
+        .flashcard.flipped { transform: rotateY(180deg); }
+
+        /* Card Faces */
+        .card-face {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+            border-radius: 16px; background: #fff; box-shadow: 0 10px 40px rgba(9, 30, 66, 0.08);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border: 1px solid #ebecf0; padding: 40px; text-align: center;
+        }
+
+        /* Front Face */
+        .card-front { z-index: 2; }
+        .word-lg { font-size: 3.5rem; font-weight: 800; color: var(--dark); margin-bottom: 20px; }
+        .hint-text { color: #6b778c; font-size: 0.9rem; font-style: italic; }
+
+        /* Back Face */
+        .card-back { transform: rotateY(180deg); background: #fdfdfd; }
+        .pinyin { font-size: 1.5rem; color: var(--primary); font-weight: 600; margin-bottom: 10px; }
+        .meaning { font-size: 1.8rem; font-weight: 700; color: #42526e; margin-bottom: 20px; }
+        .example-box { background: #f4f5f7; padding: 15px; border-radius: 8px; width: 100%; text-align: left; }
+        .example-cn { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; }
+        .example-en { font-size: 0.9rem; color: #6b778c; }
+
+        /* Bottom Controls */
+        .control-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 100px;
+            background: #fff; border-top: 1px solid #ebecf0;
+            display: flex; align-items: center; justify-content: center; gap: 15px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.03); z-index: 10;
+        }
+
+        /* Grading Buttons */
+        .btn-grade {
+            border: none; padding: 0; width: 120px; height: 50px; border-radius: 8px;
+            font-weight: 700; font-size: 0.9rem; color: #fff; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2;
+        }
+        .btn-grade:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
+
+        .btn-again { background: #ff5630; border-bottom: 4px solid #de350b; }
+        .btn-hard { background: #ffab00; border-bottom: 4px solid #ff8b00; }
+        .btn-good { background: var(--primary); border-bottom: 4px solid #0043a8; }
+        .btn-easy { background: var(--success); border-bottom: 4px solid #228c60; }
+
+        .grade-sub { font-size: 0.7rem; opacity: 0.8; font-weight: 400; }
+
+        /* Initial State: Only Show "Show Answer" button */
+        .grading-actions { display: none; gap: 15px; }
+        .btn-show {
+            background: var(--dark); color: #fff; padding: 15px 60px; border-radius: 50px;
+            font-weight: 700; font-size: 1.1rem; border: none; box-shadow: 0 8px 20px rgba(9,30,66,0.2);
+            transition: 0.2s;
+        }
+        .btn-show:hover { transform: scale(1.05); }
+
+        /* Keyboard Hint */
+        .kb-hint { position: absolute; bottom: 120px; color: #97a0af; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; }
+        .key-cap { border: 1px solid #dfe1e6; padding: 2px 6px; border-radius: 4px; font-weight: 700; background: #fff; }
+
+        /* Audio Icon */
+        .btn-audio {
+            position: absolute; top: 20px; right: 20px; font-size: 1.5rem; color: #dfe1e6;
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-audio:hover { color: var(--primary); }
+
+        /* Success View */
+        .success-overlay {
+            position: fixed; inset: 0; background: #fff; z-index: 100;
+            display: none; align-items: center; justify-content: center; flex-direction: column;
+        }
+        .success-icon { font-size: 5rem; color: var(--success); animation: popIn 0.5s; }
+    </style>
+</head>
+<body>
+
+    <div class="review-header">
+        <div class="d-flex align-items-center gap-3">
+            <a href="education_en.html" class="close-btn"><i class="bi bi-x-lg"></i></a>
+            <div class="fw-bold text-muted">Daily Review</div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-custom">
+                <div class="progress-bar-custom" id="progressBar" style="width: 20%"></div>
+            </div>
+            <div class="progress-text" id="progressText">2 / 10</div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 text-warning fw-bold">
+            <i class="bi bi-fire"></i> 5 Day Streak
+        </div>
+    </div>
+
+    <div class="review-stage">
+
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+            <div class="card-face card-front">
+                <div class="btn-audio" onclick="event.stopPropagation(); playAudio()"><i class="bi bi-volume-up-fill"></i></div>
+                <div class="small text-muted text-uppercase mb-3 fw-bold tracking-wide">Business Term</div>
+                <div class="word-lg" id="cardFront">合同</div>
+                <div class="hint-text">Tap to flip</div>
+            </div>
+
+            <div class="card-face card-back">
+                <div class="btn-audio" onclick="event.stopPropagation(); playAudio()"><i class="bi bi-volume-up-fill"></i></div>
+                <div class="pinyin" id="cardPinyin">Hé Tong</div>
+                <div class="meaning" id="cardMeaning">Contract</div>
+
+                <div class="example-box">
+                    <div class="example-cn" id="cardExCn">我们需要签署一份新的合同。</div>
+                    <div class="example-en" id="cardExEn">We need to sign a new contract.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="kb-hint d-none d-md-flex">
+            <span class="key-cap">Space</span> to flip
+        </div>
+
+    </div>
+
+    <div class="control-bar">
+        <button class="btn-show" id="btnShow" onclick="flipCard()">Show Answer</button>
+
+        <div class="grading-actions" id="gradingActions">
+            <button class="btn-grade btn-again" onclick="nextCard('again')">
+                Again
+                <span class="grade-sub">&lt; 1m</span>
+            </button>
+            <button class="btn-grade btn-hard" onclick="nextCard('hard')">
+                Hard
+                <span class="grade-sub">2d</span>
+            </button>
+            <button class="btn-grade btn-good" onclick="nextCard('good')">
+                Good
+                <span class="grade-sub">4d</span>
+            </button>
+            <button class="btn-grade btn-easy" onclick="nextCard('easy')">
+                Easy
+                <span class="grade-sub">7d</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successScreen">
+        <i class="bi bi-check-circle-fill success-icon"></i>
+        <h2 class="fw-bold mt-4 mb-2">Session Complete!</h2>
+        <p class="text-muted mb-4">You've reviewed 10 cards today. +50 XP</p>
+        <a href="education_en.html" class="btn btn-dark rounded-pill px-5 py-3 fw-bold">Back to Dashboard</a>
+    </div>
+
+    <script>
+        // Mock Data (AI Generated)
+        const cards = [
+            { front: "合同", pinyin: "Hé Tong", meaning: "Contract", exCn: "我们需要签署一份新的合同。", exEn: "We need to sign a new contract." },
+            { front: "谈判", pinyin: "Tán Pàn", meaning: "Negotiation", exCn: "谈判进行得很顺利。", exEn: "The negotiation went very smoothly." },
+            { front: "预算", pinyin: "Yù Suàn", meaning: "Budget", exCn: "这个项目的预算是多少？", exEn: "What is the budget for this project?" }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        // Init
+        updateCard();
+
+        function flipCard() {
+            const card = document.getElementById('flashcard');
+            const btnShow = document.getElementById('btnShow');
+            const grading = document.getElementById('gradingActions');
+
+            if (!isFlipped) {
+                // Flip to back
+                card.classList.add('flipped');
+                isFlipped = true;
+
+                // Show grading buttons
+                btnShow.style.display = 'none';
+                grading.style.display = 'flex';
+
+                // Update Hint
+                document.querySelector('.kb-hint').innerHTML = 'Press <span class="key-cap">1</span> <span class="key-cap">2</span> <span class="key-cap">3</span> <span class="key-cap">4</span> to grade';
+            } else {
+                // Optional: Flip back logic if needed, but usually SRS goes forward
+            }
+        }
+
+        function nextCard(difficulty) {
+            // Animation out could go here
+            currentIndex++;
+
+            if (currentIndex >= cards.length) {
+                // Finish
+                document.getElementById('successScreen').style.display = 'flex';
+                return;
+            }
+
+            // Reset UI
+            const card = document.getElementById('flashcard');
+            const btnShow = document.getElementById('btnShow');
+            const grading = document.getElementById('gradingActions');
+
+            // Instant flip back (no anim) to prepare for next card
+            card.style.transition = 'none';
+            card.classList.remove('flipped');
+            setTimeout(() => { card.style.transition = 'transform 0.6s'; }, 50);
+
+            isFlipped = false;
+            btnShow.style.display = 'block';
+            grading.style.display = 'none';
+            document.querySelector('.kb-hint').innerHTML = '<span class="key-cap">Space</span> to flip';
+
+            // Update Progress
+            updateProgress();
+
+            // Load new data
+            setTimeout(() => {
+                updateCard();
+            }, 150);
+        }
+
+        function updateCard() {
+            const data = cards[currentIndex];
+            document.getElementById('cardFront').innerText = data.front;
+            document.getElementById('cardPinyin').innerText = data.pinyin;
+            document.getElementById('cardMeaning').innerText = data.meaning;
+            document.getElementById('cardExCn').innerText = data.exCn;
+            document.getElementById('cardExEn').innerText = data.exEn;
+        }
+
+        function updateProgress() {
+            const pct = ((currentIndex) / cards.length) * 100; // Visual fix
+            document.getElementById('progressBar').style.width = pct + '%';
+            document.getElementById('progressText').innerText = (currentIndex + 1) + ' / ' + cards.length;
+        }
+
+        function playAudio() {
+            // Simulating audio
+            alert('🔊 Playing pronunciation audio...');
+        }
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // Prevent scroll
+                if(!isFlipped) flipCard();
+            }
+            if (isFlipped) {
+                if (e.key === '1') nextCard('again');
+                if (e.key === '2') nextCard('hard');
+                if (e.key === '3') nextCard('good');
+                if (e.key === '4') nextCard('easy');
+            }
+        });
+    </script>
+</body>
+</html>

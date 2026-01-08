@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>言禾 YanHe - 连接世界 共享中文</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #004aad; --accent: #ff6b00; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            margin: 0; padding: 0; height: 100vh; overflow: hidden;
+            /* 动态渐变背景 */
+            background: linear-gradient(-45deg, #eef4ff, #ffffff, #dbeafe, #f0f7ff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 顶部 Logo 区 */
+        .header { padding: 30px 50px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        .brand-logo {
+            font-size: 1.8rem; font-weight: 900; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #004aad 0%, #0078ff 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .header-right { font-size: 14px; color: #666; font-weight: 500; }
+
+        /* 中间核心内容 */
+        .main-content {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; z-index: 2; padding: 0 20px;
+        }
+
+        /* 标题动画 */
+        .hero-title {
+            font-size: 3.5rem; font-weight: 900; color: #111; margin-bottom: 10px; text-align: center;
+            background: linear-gradient(to right, #004aad, #002a5c); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            opacity: 0; animation: fadeInUp 0.8s ease forwards 0.2s;
+        }
+        .hero-subtitle {
+            font-size: 1.2rem; color: #666; margin-bottom: 50px; text-align: center; letter-spacing: 2px;
+            opacity: 0; animation: fadeInUp 0.8s ease forwards 0.4s;
+        }
+
+        /* 语言选择卡片网格 */
+        .lang-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+            max-width: 900px; width: 100%;
+            opacity: 0; animation: fadeInUp 0.8s ease forwards 0.6s;
+        }
+
+        /* 卡片样式 (玻璃拟态) */
+        .lang-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px; padding: 25px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none; position: relative; overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 74, 173, 0.05);
+        }
+
+        /* 悬停效果 */
+        .lang-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.9);
+            border-color: var(--primary);
+            box-shadow: 0 15px 30px rgba(0, 74, 173, 0.15);
+        }
+        .lang-card::before { /* 悬停光扫 */
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.8), transparent);
+            transform: skewX(-25deg); transition: 0.5s;
+        }
+        .lang-card:hover::before { left: 150%; }
+
+        .flag { font-size: 3rem; margin-bottom: 10px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1)); }
+        .lang-name { font-size: 1.2rem; font-weight: 800; color: #333; margin-bottom: 4px; }
+        .greeting { font-size: 0.9rem; color: #888; font-weight: 500; font-family: serif; font-style: italic; }
+
+        /* 中文卡片特殊样式 */
+        .lang-card.cn-card { border: 2px solid rgba(255, 0, 0, 0.1); background: rgba(255, 240, 240, 0.6); }
+        .lang-card.cn-card:hover { border-color: #E60012; }
+        .lang-card.cn-card .lang-name { color: #E60012; }
+
+        /* 底部 */
+        .footer { padding: 30px; text-align: center; font-size: 12px; color: #999; z-index: 10; }
+        .partner-logos { display: flex; gap: 20px; justify-content: center; margin-bottom: 15px; opacity: 0.5; }
+        .partner-logos i { font-size: 20px; }
+
+        /* 动画定义 */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.2rem; }
+            .lang-grid { grid-template-columns: repeat(2, 1fr); padding: 0 20px; }
+            .header { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="brand-logo">言禾 YanHe</div>
+        <div class="header-right d-none d-md-block">
+            <span class="me-3"><i class="bi bi-globe2"></i> Global Portal</span>
+            <span>2026 Challenge Cup</span>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div style="position: absolute; top: 10%; left: 50%; transform: translateX(-50%); font-size: 10rem; font-weight: 900; color: rgba(0,74,173,0.03); z-index: -1; white-space: nowrap;">
+            BRIDGE THE WORLD
+        </div>
+
+        <h1 class="hero-title">连接世界，共享中文</h1>
+        <p class="hero-subtitle">请选择您的母语 / Select Your Language</p>
+
+        <div class="lang-grid">
+            <a href="index.html" class="lang-card cn-card">
+                <div class="flag">🇨🇳</div>
+                <div class="lang-name">中文 (简体)</div>
+                <div class="greeting">" 你好 "</div>
+            </a>
+
+            <a href="index_en.html" class="lang-card">
+                <div class="flag">🇺🇸</div>
+                <div class="lang-name">English</div>
+                <div class="greeting">" Hello "</div>
+            </a>
+
+            <a href="index_en.html" class="lang-card" onclick="alert('德语版正在建设中，将为您跳转至国际通用版。')">
+                <div class="flag">🇩🇪</div>
+                <div class="lang-name">Deutsch</div>
+                <div class="greeting">" Hallo "</div>
+            </a>
+
+            <a href="index_en.html" class="lang-card" onclick="alert('法语版正在建设中，将为您跳转至国际通用版。')">
+                <div class="flag">🇫🇷</div>
+                <div class="lang-name">Français</div>
+                <div class="greeting">" Bonjour "</div>
+            </a>
+
+            <a href="index_en.html" class="lang-card" onclick="alert('俄语版正在建设中，将为您跳转至国际通用版。')">
+                <div class="flag">🇷🇺</div>
+                <div class="lang-name">Русский</div>
+                <div class="greeting">" Привет "</div>
+            </a>
+
+            <a href="index_en.html" class="lang-card" onclick="alert('意大利语版正在建设中，将为您跳转至国际通用版。')">
+                <div class="flag">🇮🇹</div>
+                <div class="lang-name">Italiano</div>
+                <div class="greeting">" Ciao "</div>
+            </a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="partner-logos">
+            <span title="教育部"><i class="bi bi-bank2"></i> Ministry of Education</span>
+            <span title="孔子学院"><i class="bi bi-book-half"></i> Confucius Institute</span>
+            <span title="联合国教科文组织"><i class="bi bi-globe-americas"></i> UNESCO</span>
+        </div>
+        <div>
+            © 2026 YanHe International Education Platform. All Rights Reserved.<br>
+            2026“挑战杯”全国大学生课外学术科技作品竞赛参赛作品
+        </div>
+    </footer>
+
+</body>
+</html>

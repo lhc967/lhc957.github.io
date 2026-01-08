@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in to YanHe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #0052cc; --dark: #091e42; --bg-light: #ffffff; }
+        body {
+            font-family: 'Inter', sans-serif;
+            height: 100vh; overflow: hidden;
+            background: #fff;
+        }
+
+        /* Layout: Split Screen */
+        .split-screen { height: 100vh; display: flex; }
+
+        /* Left: Brand Side */
+        .brand-side {
+            flex: 1; position: relative;
+            background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80'); /* Corporate Vibe */
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            color: #fff; padding: 60px;
+        }
+        .brand-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, rgba(9, 30, 66, 0.4), rgba(9, 30, 66, 0.95));
+        }
+        .brand-content { position: relative; z-index: 2; max-width: 500px; }
+
+        /* Right: Form Side */
+        .form-side {
+            width: 100%; max-width: 580px; background: #fff;
+            display: flex; flex-direction: column; justify-content: center; padding: 40px 60px;
+            position: relative; overflow-y: auto;
+        }
+
+        /* Language Switcher */
+        .lang-switch { position: absolute; top: 30px; right: 40px; }
+        .btn-lang {
+            font-size: 0.9rem; font-weight: 600; color: #505f79; text-decoration: none;
+            display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 4px; transition: 0.2s;
+        }
+        .btn-lang:hover { background: #f4f5f7; color: var(--primary); }
+
+        /* Auth Container */
+        .auth-container { width: 100%; max-width: 400px; margin: 0 auto; }
+        .logo-text { font-weight: 900; font-size: 1.8rem; color: var(--primary); margin-bottom: 20px; display: inline-block; text-decoration: none; }
+        .page-title { font-weight: 800; font-size: 2rem; color: var(--dark); margin-bottom: 10px; letter-spacing: -0.5px; }
+        .page-sub { color: #6b778c; margin-bottom: 25px; font-size: 1rem; }
+
+        /* Login Type Switcher (Individual vs Enterprise) */
+        .login-tabs {
+            display: flex; background: #f4f5f7; border-radius: 8px; padding: 4px; margin-bottom: 25px;
+        }
+        .tab-btn {
+            flex: 1; text-align: center; padding: 8px; font-size: 0.9rem; font-weight: 600;
+            color: #6b778c; border-radius: 6px; cursor: pointer; transition: 0.2s;
+        }
+        .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* Form Controls */
+        .form-label { font-weight: 600; font-size: 0.9rem; color: #42526e; margin-bottom: 6px; }
+        .form-control {
+            padding: 12px 15px; border-radius: 6px; border: 1px solid #dfe1e6; font-size: 0.95rem; margin-bottom: 18px;
+            transition: 0.2s;
+        }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0, 82, 204, 0.1); outline: none; }
+
+        .btn-primary-custom {
+            width: 100%; background: var(--primary); border: none; padding: 12px;
+            font-weight: 600; border-radius: 6px; font-size: 1rem; color: #fff; cursor: pointer; transition: 0.2s;
+        }
+        .btn-primary-custom:hover { background: #0747a6; transform: translateY(-1px); }
+
+        /* Role Grid (For Signup) */
+        .role-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .role-radio { display: none; }
+        .role-card {
+            border: 1px solid #dfe1e6; border-radius: 6px; padding: 10px 5px; text-align: center; cursor: pointer;
+            transition: 0.2s; font-size: 0.85rem; color: #505f79;
+        }
+        .role-card i { display: block; font-size: 1.2rem; margin-bottom: 5px; }
+        .role-card:hover { border-color: var(--primary); background: #f4f5f7; }
+        .role-radio:checked + .role-card { border-color: var(--primary); background: #deebff; color: var(--primary); font-weight: 700; }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .brand-side { display: none; }
+            .form-side { max-width: 100%; padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="split-screen">
+
+        <div class="brand-side">
+            <div class="brand-overlay"></div>
+            <div class="brand-content">
+                <i class="bi bi-buildings-fill" style="font-size: 2.5rem; opacity: 0.5; margin-bottom: 20px;"></i>
+                <div style="font-size: 1.4rem; font-weight: 500; line-height: 1.5; margin-bottom: 30px;">
+                    "YanHe Enterprise helps us scale our localization efforts across 20+ countries with verified talent."
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=CEO" style="width: 48px; height: 48px; border-radius: 50%;">
+                    <div>
+                        <div class="fw-bold">David Chen</div>
+                        <div class="small opacity-75">Operations Director @ TechGlobal</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-side">
+            <div class="lang-switch">
+                <a href="login.html" class="btn-lang"><i class="bi bi-translate"></i> 中文版</a>
+            </div>
+
+            <div class="auth-container">
+                <a href="index_en.html" class="logo-text">YanHe</a>
+
+                <div id="loginView">
+                    <h1 class="page-title">Welcome back</h1>
+                    <p class="page-sub">Access your personal or enterprise dashboard.</p>
+
+                    <div class="login-tabs">
+                        <div class="tab-btn active" onclick="switchLoginType('individual', this)">Individual</div>
+                        <div class="tab-btn" onclick="switchLoginType('enterprise', this)">Enterprise</div>
+                    </div>
+
+                    <form onsubmit="event.preventDefault(); handleAuth('index_en.html');">
+                        <div>
+                            <label class="form-label" id="labelEmail">Email</label>
+                            <input type="email" class="form-control" id="inputEmail" placeholder="name@example.com" value="demo@yanhe.com">
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between">
+                                <label class="form-label">Password</label>
+                                <a href="#" class="text-decoration-none small" style="color:var(--primary)">Forgot?</a>
+                            </div>
+                            <input type="password" class="form-control" value="123456">
+                        </div>
+
+                        <button type="submit" class="btn-primary-custom" id="btnLogin">Sign In</button>
+                    </form>
+
+                    <div class="text-center mt-4 text-muted small">
+                        New to YanHe? <a href="#" onclick="toggleView()" style="color:var(--primary); font-weight:700; text-decoration:none;">Create account</a>
+                    </div>
+                </div>
+
+                <div id="signupView" style="display: none;">
+                    <h1 class="page-title">Join YanHe</h1>
+                    <p class="page-sub">Select your account type to get started.</p>
+
+                    <form onsubmit="event.preventDefault(); handleAuth('index_en.html');">
+
+                        <label class="form-label">I am a...</label>
+                        <div class="role-grid">
+                            <label>
+                                <input type="radio" name="role" class="role-radio" checked>
+                                <div class="role-card">
+                                    <i class="bi bi-mortarboard"></i>
+                                    Learner
+                                </div>
+                            </label>
+                            <label>
+                                <input type="radio" name="role" class="role-radio">
+                                <div class="role-card">
+                                    <i class="bi bi-translate"></i>
+                                    Expert
+                                </div>
+                            </label>
+                            <label>
+                                <input type="radio" name="role" class="role-radio">
+                                <div class="role-card">
+                                    <i class="bi bi-building"></i>
+                                    Company
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" placeholder="Jane">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" placeholder="Doe">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="form-label">Work Email</label>
+                            <input type="email" class="form-control" placeholder="name@company.com">
+                        </div>
+
+                        <div>
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" placeholder="Min. 8 characters">
+                        </div>
+
+                        <button type="submit" class="btn-primary-custom" id="btnSignup">Create Account</button>
+                    </form>
+
+                    <div class="text-center mt-4 text-muted small">
+                        Already have an account? <a href="#" onclick="toggleView()" style="color:var(--primary); font-weight:700; text-decoration:none;">Log in</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="text-center mt-auto pt-4 text-muted small opacity-50">
+                &copy; 2026 YanHe Inc. All rights reserved.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleView() {
+            const login = document.getElementById('loginView');
+            const signup = document.getElementById('signupView');
+
+            if (login.style.display === 'none') {
+                login.style.display = 'block';
+                signup.style.display = 'none';
+            } else {
+                login.style.display = 'none';
+                signup.style.display = 'block';
+            }
+        }
+
+        // Switch between Individual and Enterprise Login
+        function switchLoginType(type, btn) {
+            // UI Toggle
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Logic Changes
+            const label = document.getElementById('labelEmail');
+            const input = document.getElementById('inputEmail');
+
+            if (type === 'enterprise') {
+                label.innerText = 'Work Email (SSO)';
+                input.placeholder = 'name@company.com';
+                // You could also hide "Forgot Password" for SSO logic here
+            } else {
+                label.innerText = 'Email';
+                input.placeholder = 'name@example.com';
+            }
+        }
+
+        function handleAuth(targetUrl) {
+            const isLogin = document.getElementById('loginView').style.display !== 'none';
+            const btn = isLogin ? document.getElementById('btnLogin') : document.getElementById('btnSignup');
+
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Verifying...';
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

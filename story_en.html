@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Community - YanHe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #0052cc; --accent: #ffab00; --dark: #172b4d; --bg-light: #f4f5f7; }
+        body {
+            font-family: 'Inter', sans-serif;
+            padding-top: 76px;
+            background: var(--bg-light);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+
+        /* --- Navbar (Fixed Full Width) --- */
+        .navbar-custom {
+            background: rgba(255,255,255,0.98); border-bottom: 1px solid #eaeaea; height: 76px; z-index: 1000;
+        }
+        .navbar-brand { font-weight: 900; font-size: 1.6rem; color: var(--primary) !important; letter-spacing: -0.5px; }
+        .nav-link { font-weight: 600; color: #505f79 !important; padding: 8px 15px !important; }
+        .nav-link:hover { color: var(--primary) !important; }
+        .nav-link.active { color: var(--primary) !important; }
+
+        /* --- 1. Hero (Centered) --- */
+        .community-hero {
+            background: #fff; padding: 60px 20px 40px; text-align: center; border-bottom: 1px solid #eaeaea;
+            width: 100%;
+        }
+        .hero-title { font-size: 2.8rem; font-weight: 900; margin-bottom: 15px; letter-spacing: -1px; }
+        .hero-sub { color: #6b778c; max-width: 700px; margin: 0 auto 30px; font-size: 1.1rem; line-height: 1.6; }
+        .btn-create {
+            background: var(--dark); color: #fff; padding: 12px 35px; border-radius: 50px; font-weight: 700;
+            border: none; transition: 0.3s; font-size: 1rem;
+        }
+        .btn-create:hover { background: #000; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* --- 2. Sticky Filters (Centered) --- */
+        .tag-scroll-container {
+            position: sticky; top: 76px; background: rgba(244, 245, 247, 0.98); backdrop-filter: blur(10px);
+            z-index: 90; padding: 15px 0; border-bottom: 1px solid rgba(0,0,0,0.05); width: 100%;
+        }
+        .tag-wrapper {
+            max-width: 1600px; margin: 0 auto; /* Center the wrapper */
+            display: flex; justify-content: center; /* Center the items */
+        }
+        .tag-scroller {
+            display: flex; gap: 12px; overflow-x: auto; padding: 0 25px;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none;
+        }
+        .tag-scroller::-webkit-scrollbar { display: none; }
+
+        /* On mobile, align left to allow scrolling */
+        @media (max-width: 992px) {
+            .tag-wrapper { justify-content: flex-start; }
+        }
+
+        .filter-pill {
+            white-space: nowrap; padding: 8px 24px; border-radius: 30px; background: #fff;
+            border: 1px solid #dfe1e6; color: #505f79; font-weight: 600; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .filter-pill:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+        .filter-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 10px rgba(0, 82, 204, 0.2); }
+
+        /* --- 3. Fluid Masonry Grid (Centered Constraint) --- */
+        .masonry-fluid {
+            padding: 25px;
+            width: 100%;
+            max-width: 1600px; /* 关键修改：限制最大宽度 */
+            margin: 0 auto;    /* 关键修改：整体居中 */
+        }
+
+        .masonry-cols {
+            column-gap: 25px;
+            column-count: 2; /* Mobile Default */
+        }
+
+        /* Responsive Columns */
+        @media (min-width: 768px) { .masonry-cols { column-count: 3; } }
+        @media (min-width: 1200px) { .masonry-cols { column-count: 4; } }
+        @media (min-width: 1600px) { .masonry-cols { column-count: 5; } }
+
+        /* Pin Card Styles */
+        .pin-card {
+            break-inside: avoid; background: #fff; border-radius: 16px; margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04); overflow: hidden; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer; display: inline-block; width: 100%; border: 1px solid transparent;
+        }
+        .pin-card:hover { transform: translateY(-6px); box-shadow: 0 15px 30px rgba(0,0,0,0.12); z-index: 2; position: relative; }
+
+        .pin-img-wrap { position: relative; overflow: hidden; }
+        .pin-img { width: 100%; display: block; object-fit: cover; transition: transform 0.5s; }
+        .pin-card:hover .pin-img { transform: scale(1.03); }
+
+        .category-badge {
+            position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.95);
+            color: var(--dark); padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15); backdrop-filter: blur(4px);
+        }
+
+        .pin-body { padding: 20px; }
+        .pin-title { font-size: 1.15rem; font-weight: 800; margin-bottom: 8px; line-height: 1.35; color: var(--dark); }
+        .pin-snippet { font-size: 0.95rem; color: #5e6c84; margin-bottom: 15px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;}
+
+        .pin-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f4f5f7; padding-top: 15px; }
+        .author-box { display: flex; align-items: center; gap: 10px; }
+        .author-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #eee; }
+        .author-name { font-size: 0.85rem; font-weight: 600; color: #172b4d; }
+
+        .interaction-box { display: flex; gap: 15px; font-size: 0.9rem; color: #6b778c; }
+        .action-icon { cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+        .action-icon:hover { color: var(--primary); }
+        .action-icon.liked { color: #ff5630; }
+
+        /* FAB (Mobile) */
+        .fab-mobile {
+            position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+            background: var(--dark); color: #fff; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 26px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 100;
+            display: none;
+        }
+        @media (max-width: 768px) { .fab-mobile { display: flex; } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="index_en.html">YanHe</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navEn">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navEn">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="index_en.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="story_en.html">Community</a></li>
+                    <li class="nav-item"><a class="nav-link" href="education_en.html">Edu Cloud</a></li>
+                    <li class="nav-item"><a class="nav-link" href="service_en.html">Task Hub</a></li>
+                    <li class="nav-item"><a class="nav-link" href="culture_en.html">Map</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="login_en.html" class="btn btn-outline-secondary btn-sm rounded-pill px-4 fw-bold">Login</a>
+                    <a href="story.html" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold" style="background:var(--primary);border:none;">中文版</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="community-hero">
+        <div class="container">
+            <h1 class="hero-title">Discover the Real China</h1>
+            <p class="hero-sub">
+                Join our global community of 12,000+ learners. Dive into authentic stories, ask questions, and share your unique journey.
+            </p>
+            <button class="btn-create d-none d-md-inline-block" onclick="alert('Open Post Editor')">
+                <i class="bi bi-pencil-fill me-2"></i> Share Your Story
+            </button>
+        </div>
+    </div>
+
+    <div class="tag-scroll-container">
+        <div class="tag-wrapper">
+            <div class="tag-scroller">
+                <div class="filter-pill active">🔥 Trending</div>
+                <div class="filter-pill">Expat Life</div>
+                <div class="filter-pill">Authentic Food</div>
+                <div class="filter-pill">Survival Chinese</div>
+                <div class="filter-pill">Hanfu & Culture</div>
+                <div class="filter-pill">Job Opportunities</div>
+                <div class="filter-pill">Travel Tips</div>
+                <div class="filter-pill">Study Abroad</div>
+                <div class="filter-pill">Tech in China</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="masonry-fluid">
+        <div class="masonry-cols">
+
+            <div class="pin-card">
+                <div class="pin-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1514565131-fce0801e5785?w=600&q=80" class="pin-img">
+                    <span class="category-badge">Expat Life</span>
+                </div>
+                <div class="pin-body">
+                    <h3 class="pin-title">My First Month in Shanghai: 5 Things I Wish I Knew</h3>
+                    <p class="pin-snippet">Navigating the subway, setting up WeChat Pay, and finding the best coffee spots...</p>
+                    <div class="pin-footer">
+                        <div class="author-box">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" class="author-avatar">
+                            <span class="author-name">Sarah.J</span>
+                        </div>
+                        <div class="interaction-box">
+                            <span class="action-icon liked"><i class="bi bi-heart-fill"></i> 1.2k</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pin-card">
+                <div class="pin-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1563245372-f21720e38c4d?w=600&q=80" class="pin-img" style="aspect-ratio: 3/4;">
+                    <span class="category-badge">Food</span>
+                </div>
+                <div class="pin-body">
+                    <h3 class="pin-title">Surviving Chengdu Hotpot: My "Mild" Mistake 🌶️</h3>
+                    <p class="pin-snippet">When the waiter says "Wei La" (Mild Spicy), don't believe them! Here is my hilarious experience.</p>
+                    <div class="pin-footer">
+                        <div class="author-box">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mike" class="author-avatar">
+                            <span class="author-name">Mike_Eats</span>
+                        </div>
+                        <div class="interaction-box">
+                            <span class="action-icon"><i class="bi bi-heart"></i> 856</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pin-card">
+                <div class="pin-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1531256456869-ce942ec60cdd?w=600&q=80" class="pin-img">
+                    <span class="category-badge">Language</span>
+                </div>
+                <div class="pin-body">
+                    <h3 class="pin-title">Understanding "Neijuan" (Involution)</h3>
+                    <p class="pin-snippet">Why is everyone talking about Neijuan? A deep dive into modern Chinese work culture.</p>
+                    <div class="pin-footer">
+                        <div class="author-box">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Prof" class="author-avatar">
+                            <span class="author-name">CultureDecoder</span>
+                        </div>
+                        <div class="interaction-box">
+                            <span class="action-icon"><i class="bi bi-heart"></i> 2.1k</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pin-card">
+                <div class="pin-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1543165365-07232fe12224?w=600&q=80" class="pin-img" style="aspect-ratio: 3/5;">
+                    <span class="category-badge">Culture</span>
+                </div>
+                <div class="pin-body">
+                    <h3 class="pin-title">Wearing Hanfu in London streets ✨</h3>
+                    <div class="pin-footer">
+                        <div class="author-box">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lily" class="author-avatar">
+                            <span class="author-name">Lily_Hanfu</span>
+                        </div>
+                        <div class="interaction-box">
+                            <span class="action-icon"><i class="bi bi-heart"></i> 5k</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pin-card">
+                <div class="pin-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&q=80" class="pin-img">
+                    <span class="category-badge">Tech</span>
+                </div>
+                <div class="pin-body">
+                    <h3 class="pin-title">Cashless Society: How to live with just a phone</h3>
+                    <div class="pin-footer">
+                        <div class="author-box">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Tech" class="author-avatar">
+                            <span class="author-name">DigitalNomad</span>
+                        </div>
+                        <div class="interaction-box">
+                            <span class="action-icon"><i class="bi bi-heart"></i> 342</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pin-card">
+                <div class="pin-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80" class="pin-img" style="aspect-ratio: 4/3;">
+                    <span class="category-badge">Travel</span>
+                </div>
+                <div class="pin-body">
+                    <h3 class="pin-title">Hiking in rural Yunnan</h3>
+                    <div class="pin-footer">
+                        <div class="author-box">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" class="author-avatar">
+                            <span class="author-name">Alex.Trek</span>
+                        </div>
+                        <div class="interaction-box">
+                            <span class="action-icon"><i class="bi bi-heart"></i> 99+</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pin-card">
+                <div class="pin-img-wrap">
+                    <img src="https://images.unsplash.com/photo-1518544806352-a22860712270?w=600&q=80" class="pin-img">
+                    <span class="category-badge">Nightlife</span>
+                </div>
+                <div class="pin-body">
+                    <h3 class="pin-title">Shenzhen Light Show Guide</h3>
+                    <div class="pin-footer">
+                        <div class="author-box">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=SZ" class="author-avatar">
+                            <span class="author-name">SZ_Insider</span>
+                        </div>
+                        <div class="interaction-box">
+                            <span class="action-icon"><i class="bi bi-heart"></i> 420</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="fab-mobile" onclick="alert('Create new post')">
+        <i class="bi bi-plus-lg"></i>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Tag Selection
+        document.querySelectorAll('.filter-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Like Interaction
+        document.querySelectorAll('.action-icon').forEach(icon => {
+            icon.addEventListener('click', function() {
+                if(this.querySelector('.bi-heart-fill') || this.querySelector('.bi-heart')) {
+                    this.classList.toggle('liked');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>YanHe - Master Chinese, Connect Globally</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* --- 1. Global Western Style --- */
+        :root {
+            --primary: #0052cc; /* Classic Tech Blue */
+            --dark: #091e42;
+            --text: #42526e;
+            --bg-light: #ffffff;
+            --bg-section: #f4f5f7;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--dark);
+            padding-top: 76px; /* Space for fixed navbar */
+            background-color: var(--bg-light);
+            overflow-x: hidden;
+        }
+
+        /* --- 2. Navbar (Responsive) --- */
+        .navbar-custom {
+            background: rgba(255,255,255,0.98);
+            border-bottom: 1px solid #ebecf0;
+            height: 76px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .navbar-brand {
+            font-weight: 900; font-size: 1.6rem; color: var(--primary) !important; letter-spacing: -0.5px;
+        }
+        .nav-link {
+            font-weight: 600; color: #505f79 !important; margin: 0 8px; font-size: 0.95rem;
+        }
+        .nav-link:hover { color: var(--primary) !important; }
+        .btn-nav-action {
+            background: var(--primary); color: #fff; padding: 8px 20px; border-radius: 4px; font-weight: 600; text-decoration: none; transition: 0.2s;
+        }
+        .btn-nav-action:hover { background: #0043a8; color: #fff; }
+
+        /* Mobile Menu Adjustments */
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                background: #fff; padding: 20px; border-radius: 0 0 12px 12px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 1px solid #eee;
+            }
+            .nav-item { margin-bottom: 10px; }
+            .d-flex.align-items-center { flex-direction: column; align-items: flex-start !important; width: 100%; margin-top: 15px; }
+            .btn-nav-action { width: 100%; text-align: center; margin-left: 0 !important; margin-top: 10px; }
+            .btn-login-mobile { width: 100%; text-align: center; border: 1px solid #ddd; padding: 8px; border-radius: 4px; font-weight: 600; color: var(--dark); text-decoration: none; }
+        }
+
+        /* --- 3. Hero Section --- */
+        .hero { padding: 80px 0; background: #fff; }
+        .hero-badge {
+            display: inline-block; background: #deebff; color: var(--primary);
+            font-size: 0.8rem; font-weight: 700; padding: 6px 12px; border-radius: 4px; margin-bottom: 20px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .hero-title {
+            font-size: 3.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 24px; color: var(--dark); letter-spacing: -1px;
+        }
+        .hero-text { font-size: 1.25rem; color: #6b778c; margin-bottom: 40px; line-height: 1.6; }
+
+        .hero-btns { display: flex; gap: 15px; flex-wrap: wrap; }
+        .btn-hero-primary {
+            background: var(--primary); color: #fff; padding: 14px 32px; border-radius: 6px;
+            font-weight: 600; text-decoration: none; transition: 0.2s; font-size: 1.1rem;
+        }
+        .btn-hero-primary:hover { background: #0747a6; color: #fff; transform: translateY(-2px); }
+        .btn-hero-outline {
+            background: #fff; color: var(--primary); border: 2px solid #ebecf0; padding: 12px 30px;
+            border-radius: 6px; font-weight: 600; text-decoration: none; transition: 0.2s; font-size: 1.1rem;
+        }
+        .btn-hero-outline:hover { border-color: var(--primary); background: #f4f5f7; }
+
+        @media (max-width: 768px) {
+            .hero { padding: 40px 0; text-align: center; }
+            .hero-title { font-size: 2.5rem; }
+            .hero-text { font-size: 1.1rem; }
+            .hero-btns { justify-content: center; }
+            .btn-hero-primary, .btn-hero-outline { width: 100%; } /* Full width buttons on mobile */
+        }
+
+        /* --- 4. Stats (Social Proof) --- */
+        .stats-section { border-top: 1px solid #ebecf0; border-bottom: 1px solid #ebecf0; padding: 40px 0; background: #fafbfc; }
+        .stat-item { text-align: center; }
+        .stat-num { font-size: 2.5rem; font-weight: 900; color: var(--dark); display: block; margin-bottom: 5px; }
+        .stat-label { font-size: 0.9rem; color: #6b778c; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+        @media (max-width: 768px) {
+            .stat-num { font-size: 2rem; }
+            .stat-item { margin-bottom: 20px; } /* Stack on mobile */
+        }
+
+        /* --- 5. Features Grid --- */
+        .features-section { padding: 80px 0; }
+        .section-header { text-align: center; margin-bottom: 60px; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .section-title { font-weight: 800; font-size: 2.5rem; margin-bottom: 15px; color: var(--dark); }
+        .section-sub { font-size: 1.1rem; color: #6b778c; }
+
+        .feature-card {
+            background: #fff; border: 1px solid #ebecf0; border-radius: 8px; padding: 32px;
+            height: 100%; transition: all 0.3s; cursor: pointer; display: block; text-decoration: none; color: inherit;
+        }
+        .feature-card:hover {
+            transform: translateY(-8px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); border-color: transparent;
+        }
+        .icon-wrapper {
+            width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 28px; margin-bottom: 24px;
+        }
+        /* Icon Colors */
+        .bg-blue { background: #e6effc; color: #0052cc; }
+        .bg-green { background: #e3fcef; color: #006644; }
+        .bg-orange { background: #fff7d6; color: #ff991f; }
+        .bg-purple { background: #eae6ff; color: #403294; }
+
+        .card-title { font-weight: 700; font-size: 1.25rem; margin-bottom: 12px; }
+        .card-text { color: #6b778c; line-height: 1.6; font-size: 0.95rem; margin-bottom: 20px; }
+        .link-text { color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+
+        /* --- 6. CTA Section --- */
+        .cta-section {
+            background: var(--dark); color: #fff; padding: 80px 0; text-align: center;
+        }
+        .cta-btn {
+            background: #fff; color: var(--dark); padding: 14px 40px; border-radius: 50px;
+            font-weight: 700; text-decoration: none; margin-top: 30px; display: inline-block; transition: 0.2s;
+        }
+        .cta-btn:hover { background: #f4f5f7; transform: scale(1.05); color: var(--primary); }
+
+        /* Footer */
+        .footer { padding: 60px 0 30px; background: #fff; border-top: 1px solid #ebecf0; font-size: 0.9rem; }
+        .footer-logo { font-weight: 900; font-size: 1.2rem; color: var(--primary); margin-bottom: 20px; display: block; text-decoration: none; }
+        .footer-link { display: block; color: #505f79; text-decoration: none; margin-bottom: 12px; transition: 0.2s; }
+        .footer-link:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#">YanHe</a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <i class="bi bi-list fs-2 text-dark"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="education_en.html">Courses</a></li>
+                    <li class="nav-item"><a class="nav-link" href="service_en.html">Freelance</a></li>
+                    <li class="nav-item"><a class="nav-link" href="story_en.html">Community</a></li>
+                    <li class="nav-item"><a class="nav-link" href="culture_en.html">Dialect Map</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="index.html" class="nav-link px-0">🇨🇳 中文</a>
+                    <a href="login_en.html" class="btn-login-mobile d-lg-none">Log in</a> <a href="login_en.html" class="nav-link fw-bold d-none d-lg-block">Log in</a> <a href="education_en.html" class="btn-nav-action">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <span class="hero-badge">YanHe Platform 2026</span>
+                    <h1 class="hero-title">
+                        Learn Chinese.<br>
+                        <span style="color: var(--primary);">Unlock Your Future.</span>
+                    </h1>
+                    <p class="hero-text">
+                        The all-in-one platform for language learning, cultural immersion, and freelance opportunities. Powered by AI & GIS technology.
+                    </p>
+                    <div class="hero-btns">
+                        <a href="education_en.html" class="btn-hero-primary">Start Learning Free</a>
+                        <a href="service_en.html" class="btn-hero-outline">I want to hire</a>
+                    </div>
+                    <div class="mt-4 text-muted small d-flex gap-3 justify-content-lg-start justify-content-center">
+                        <span><i class="bi bi-check-circle-fill text-success"></i> No credit card</span>
+                        <span><i class="bi bi-check-circle-fill text-success"></i> Verified Tutors</span>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block text-center">
+                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                         class="img-fluid rounded-4 shadow-lg"
+                         style="transform: perspective(1000px) rotateY(-5deg);">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-6 col-md-3 stat-item">
+                    <span class="stat-num">28+</span>
+                    <span class="stat-label">Countries</span>
+                </div>
+                <div class="col-6 col-md-3 stat-item">
+                    <span class="stat-num">12k</span>
+                    <span class="stat-label">Experts</span>
+                </div>
+                <div class="col-6 col-md-3 stat-item">
+                    <span class="stat-num">80k+</span>
+                    <span class="stat-label">Tasks Done</span>
+                </div>
+                <div class="col-6 col-md-3 stat-item">
+                    <span class="stat-num">4.9/5</span>
+                    <span class="stat-label">User Rating</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why Choose YanHe?</h2>
+                <p class="section-sub">We combine advanced AI with authentic cultural content to provide a unique learning experience.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <a href="education_en.html" class="feature-card">
+                        <div class="icon-wrapper bg-blue"><i class="bi bi-mortarboard-fill"></i></div>
+                        <h4 class="card-title">Edu Cloud</h4>
+                        <p class="card-text">AI-assisted learning paths tailored to your HSK level and business needs.</p>
+                        <span class="link-text">Browse Courses <i class="bi bi-arrow-right"></i></span>
+                    </a>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <a href="service_en.html" class="feature-card">
+                        <div class="icon-wrapper bg-orange"><i class="bi bi-briefcase-fill"></i></div>
+                        <h4 class="card-title">Task Hub</h4>
+                        <p class="card-text">Find translation gigs and language jobs. Secure payment escrow included.</p>
+                        <span class="link-text">Find Work <i class="bi bi-arrow-right"></i></span>
+                    </a>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <a href="story_en.html" class="feature-card">
+                        <div class="icon-wrapper bg-purple"><i class="bi bi-people-fill"></i></div>
+                        <h4 class="card-title">Community</h4>
+                        <p class="card-text">Connect with peers, share your stories, and discover authentic China.</p>
+                        <span class="link-text">Join Discussion <i class="bi bi-arrow-right"></i></span>
+                    </a>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <a href="culture_en.html" class="feature-card">
+                        <div class="icon-wrapper bg-green"><i class="bi bi-map-fill"></i></div>
+                        <h4 class="card-title">Dialect Atlas</h4>
+                        <p class="card-text">Immersive 3D map to explore regional dialects and cultural heritage.</p>
+                        <span class="link-text">Launch Map <i class="bi bi-arrow-right"></i></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="fw-bold display-6">Ready to start your journey?</h2>
+            <p class="lead opacity-75 mt-3">Join 12,000+ learners and professionals today.</p>
+            <a href="education_en.html" class="cta-btn">Get Started for Free</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <a href="#" class="footer-logo">YanHe</a>
+                    <p class="text-muted">Empowering global communication through Chinese language and culture.</p>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h6 class="fw-bold mb-3">Product</h6>
+                    <a href="education_en.html" class="footer-link">Courses</a>
+                    <a href="service_en.html" class="footer-link">Jobs</a>
+                    <a href="culture_en.html" class="footer-link">Map</a>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h6 class="fw-bold mb-3">Company</h6>
+                    <a href="#" class="footer-link">About Us</a>
+                    <a href="#" class="footer-link">Careers</a>
+                    <a href="#" class="footer-link">Contact</a>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="fw-bold mb-3">Subscribe</h6>
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Email address">
+                        <button class="btn btn-primary" type="button">Join</button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-top pt-4 mt-4 text-center text-muted small">
+                © 2026 YanHe Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

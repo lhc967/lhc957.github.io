@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能复习 - 言禾 YanHe</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { --primary: #004aad; --dark: #333; --bg-light: #f8faff; --success: #28a745; --danger: #dc3545; --warning: #ffc107; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg-light);
+            height: 100vh; overflow: hidden; /* 沉浸式，禁止滚动 */
+            display: flex; flex-direction: column;
+        }
+
+        /* 极简头部 */
+        .review-header {
+            padding: 15px 30px; background: #fff; border-bottom: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center; height: 70px;
+        }
+        .close-btn { color: #999; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .close-btn:hover { color: var(--dark); transform: rotate(90deg); }
+
+        /* 进度条 */
+        .progress-container { width: 300px; }
+        .progress-custom { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
+        .progress-bar-custom { height: 100%; background: var(--success); width: 20%; transition: width 0.5s ease; }
+        .progress-text { font-size: 12px; color: #999; text-align: center; margin-top: 5px; font-weight: bold; }
+
+        /* 主舞台区 */
+        .review-stage {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            perspective: 1000px; /* 3D 翻转必须 */
+            padding-bottom: 80px; /* 给底部留空 */
+        }
+
+        /* 卡片容器 */
+        .flashcard {
+            width: 100%; max-width: 600px; height: 380px; cursor: pointer;
+            position: relative; transform-style: preserve-3d; transition: transform 0.6s;
+        }
+        .flashcard.flipped { transform: rotateY(180deg); }
+
+        /* 卡片正反面通用 */
+        .card-face {
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+            border-radius: 16px; background: #fff; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border: 1px solid #eee; padding: 40px; text-align: center;
+        }
+
+        /* 正面 */
+        .card-front { z-index: 2; }
+        .word-lg { font-size: 3.5rem; font-weight: 800; color: var(--dark); margin-bottom: 20px; font-family: Arial, sans-serif; }
+        .hint-text { color: #999; font-size: 14px; }
+
+        /* 背面 */
+        .card-back { transform: rotateY(180deg); background: #fdfdfd; }
+        .phonetic { font-size: 1.2rem; color: #666; margin-bottom: 10px; font-family: Arial, sans-serif; }
+        .meaning { font-size: 2rem; font-weight: 900; color: var(--primary); margin-bottom: 25px; }
+        .example-box { background: #f8f9fa; padding: 15px; border-radius: 8px; width: 100%; text-align: left; border-left: 4px solid var(--primary); }
+        .example-en { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; color: #333; }
+        .example-cn { font-size: 0.9rem; color: #666; }
+
+        /* 底部控制栏 */
+        .control-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 100px;
+            background: #fff; border-top: 1px solid #eee;
+            display: flex; align-items: center; justify-content: center; gap: 15px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.02); z-index: 10;
+        }
+
+        /* 艾宾浩斯按钮 */
+        .btn-grade {
+            border: none; padding: 0; width: 110px; height: 55px; border-radius: 8px;
+            font-weight: bold; font-size: 15px; color: #fff; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2;
+        }
+        .btn-grade:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
+
+        .btn-again { background: #ff6b6b; border-bottom: 4px solid #e03131; }
+        .btn-hard { background: #ff922b; border-bottom: 4px solid #e8590c; }
+        .btn-good { background: #51cf66; border-bottom: 4px solid #2f9e44; }
+        .btn-easy { background: #339af0; border-bottom: 4px solid #1c7ed6; }
+
+        .grade-sub { font-size: 12px; opacity: 0.8; font-weight: normal; }
+
+        /* 初始状态：只显示“查看答案” */
+        .grading-actions { display: none; gap: 15px; }
+        .btn-show {
+            background: var(--dark); color: #fff; padding: 15px 80px; border-radius: 50px;
+            font-weight: bold; font-size: 18px; border: none; box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+        .btn-show:hover { transform: scale(1.05); }
+
+        /* 键盘提示 */
+        .kb-hint { position: absolute; bottom: 120px; color: #adb5bd; font-size: 13px; display: flex; align-items: center; gap: 5px; }
+        .key-cap { border: 1px solid #dee2e6; padding: 2px 8px; border-radius: 4px; font-weight: bold; background: #fff; box-shadow: 0 2px 0 #eee; }
+
+        /* 发音图标 */
+        .btn-audio {
+            position: absolute; top: 20px; right: 20px; font-size: 1.5rem; color: #ddd;
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-audio:hover { color: var(--primary); }
+
+        /* 成功结算页 */
+        .success-overlay {
+            position: fixed; inset: 0; background: #fff; z-index: 100;
+            display: none; align-items: center; justify-content: center; flex-direction: column;
+        }
+        .success-icon { font-size: 80px; color: var(--success); animation: popIn 0.5s; margin-bottom: 20px; }
+        @keyframes popIn { from{transform:scale(0);} to{transform:scale(1);} }
+    </style>
+</head>
+<body>
+
+    <div class="review-header">
+        <div class="d-flex align-items-center gap-3">
+            <a href="education.html" class="close-btn" title="退出复习"><i class="bi bi-x-lg"></i></a>
+            <div class="fw-bold text-muted">每日智能复习</div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-custom">
+                <div class="progress-bar-custom" id="progressBar" style="width: 20%"></div>
+            </div>
+            <div class="progress-text" id="progressText">2 / 10</div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 text-warning fw-bold">
+            <i class="bi bi-fire"></i> 坚持 5 天
+        </div>
+    </div>
+
+    <div class="review-stage">
+
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+            <div class="card-face card-front">
+                <div class="btn-audio" onclick="event.stopPropagation(); playAudio()"><i class="bi bi-volume-up-fill"></i></div>
+                <div class="small text-muted text-uppercase mb-3 fw-bold tracking-wide">商务核心词汇</div>
+                <div class="word-lg" id="cardFront">Negotiation</div>
+                <div class="hint-text">点击翻转查看释义</div>
+            </div>
+
+            <div class="card-face card-back">
+                <div class="btn-audio" onclick="event.stopPropagation(); playAudio()"><i class="bi bi-volume-up-fill"></i></div>
+                <div class="phonetic" id="cardPhonetic">/nɪˌɡoʊʃiˈeɪʃn/</div>
+                <div class="meaning" id="cardMeaning">谈判；协商</div>
+
+                <div class="example-box">
+                    <div class="example-en" id="cardExEn">The negotiation went very smoothly.</div>
+                    <div class="example-cn" id="cardExCn">谈判进行得非常顺利。</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="kb-hint d-none d-md-flex">
+            按 <span class="key-cap">空格</span> 翻转
+        </div>
+
+    </div>
+
+    <div class="control-bar">
+        <button class="btn-show" id="btnShow" onclick="flipCard()">查看答案</button>
+
+        <div class="grading-actions" id="gradingActions">
+            <button class="btn-grade btn-again" onclick="nextCard('again')">
+                重来
+                <span class="grade-sub">1分钟</span>
+            </button>
+            <button class="btn-grade btn-hard" onclick="nextCard('hard')">
+                困难
+                <span class="grade-sub">2天</span>
+            </button>
+            <button class="btn-grade btn-good" onclick="nextCard('good')">
+                良好
+                <span class="grade-sub">4天</span>
+            </button>
+            <button class="btn-grade btn-easy" onclick="nextCard('easy')">
+                容易
+                <span class="grade-sub">7天</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successScreen">
+        <div class="success-icon"><i class="bi bi-check-circle-fill"></i></div>
+        <h2 class="fw-bold mb-2">今日任务完成！</h2>
+        <p class="text-muted mb-5">您今天复习了 10 个单词，记忆指数 +5%</p>
+        <a href="education.html" class="btn btn-dark rounded-pill px-5 py-3 fw-bold">返回控制台</a>
+    </div>
+
+    <script>
+        // 模拟数据 (英汉模式)
+        const cards = [
+            { front: "Negotiation", phonetic: "/nɪˌɡoʊʃiˈeɪʃn/", meaning: "谈判；协商", exEn: "The negotiation went very smoothly.", exCn: "谈判进行得非常顺利。" },
+            { front: "Budget", phonetic: "/ˈbʌdʒɪt/", meaning: "预算", exEn: "We need to cut the budget.", exCn: "我们需要削减预算。" },
+            { front: "Contract", phonetic: "/ˈkɑːntrækt/", meaning: "合同；契约", exEn: "Please sign the contract here.", exCn: "请在这里签署合同。" }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        // 初始化
+        updateCard();
+
+        function flipCard() {
+            const card = document.getElementById('flashcard');
+            const btnShow = document.getElementById('btnShow');
+            const grading = document.getElementById('gradingActions');
+
+            if (!isFlipped) {
+                // 翻转
+                card.classList.add('flipped');
+                isFlipped = true;
+
+                // 切换按钮
+                btnShow.style.display = 'none';
+                grading.style.display = 'flex';
+
+                // 更新提示
+                document.querySelector('.kb-hint').innerHTML = '按 <span class="key-cap">1</span> <span class="key-cap">2</span> <span class="key-cap">3</span> <span class="key-cap">4</span> 评分';
+            }
+        }
+
+        function nextCard(difficulty) {
+            // 这里可以接入后端 API 记录艾宾浩斯数据
+            console.log(`Card ${currentIndex} rated: ${difficulty}`);
+
+            currentIndex++;
+
+            if (currentIndex >= cards.length) {
+                // 完成
+                document.getElementById('successScreen').style.display = 'flex';
+                return;
+            }
+
+            // 重置 UI
+            const card = document.getElementById('flashcard');
+            const btnShow = document.getElementById('btnShow');
+            const grading = document.getElementById('gradingActions');
+
+            // 瞬间复位 (无动画)
+            card.style.transition = 'none';
+            card.classList.remove('flipped');
+            setTimeout(() => { card.style.transition = 'transform 0.6s'; }, 50);
+
+            isFlipped = false;
+            btnShow.style.display = 'block';
+            grading.style.display = 'none';
+            document.querySelector('.kb-hint').innerHTML = '按 <span class="key-cap">空格</span> 翻转';
+
+            // 更新进度
+            updateProgress();
+
+            // 延迟加载数据
+            setTimeout(() => {
+                updateCard();
+            }, 150);
+        }
+
+        function updateCard() {
+            const data = cards[currentIndex];
+            document.getElementById('cardFront').innerText = data.front;
+            document.getElementById('cardPhonetic').innerText = data.phonetic;
+            document.getElementById('cardMeaning').innerText = data.meaning;
+            document.getElementById('cardExEn').innerText = data.exEn;
+            document.getElementById('cardExCn').innerText = data.exCn;
+        }
+
+        function updateProgress() {
+            const pct = ((currentIndex) / cards.length) * 100;
+            document.getElementById('progressBar').style.width = pct + '%';
+            document.getElementById('progressText').innerText = (currentIndex + 1) + ' / ' + cards.length;
+        }
+
+        function playAudio() {
+            alert('🔊 正在播放单词发音...');
+        }
+
+        // 键盘快捷键监听
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if(!isFlipped) flipCard();
+            }
+            if (isFlipped) {
+                if (e.key === '1') nextCard('again');
+                if (e.key === '2') nextCard('hard');
+                if (e.key === '3') nextCard('good');
+                if (e.key === '4') nextCard('easy');
+            }
+        });
+    </script>
+</body>
+</html>
