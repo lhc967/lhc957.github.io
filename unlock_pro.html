@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>解锁 Pro 会员 - 言禾 YanHe</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root { --primary: #004aad; --gold: #d4af37; --dark-bg: #1a1a1a; }
+        body { font-family: -apple-system, "PingFang SC", sans-serif; background: #f8f9fa; padding-top: 60px; }
+
+        /* 导航栏 */
+        .navbar-custom { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: 60px; }
+
+        /* 头部 Hero */
+        .vip-hero {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+            color: #fff; padding: 60px 20px 80px; text-align: center;
+            border-radius: 0 0 50% 50% / 20px; margin-bottom: -60px;
+            position: relative; overflow: hidden;
+        }
+        .vip-hero::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.15), transparent 70%);
+        }
+        .vip-title { font-size: 32px; font-weight: 900; margin-bottom: 10px; background: linear-gradient(to right, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* 卡片容器 */
+        .card-container { max-width: 900px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 2; }
+
+        /* 权益卡片 */
+        .benefit-card {
+            background: #fff; border-radius: 16px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 1px solid rgba(212, 175, 55, 0.2); text-align: center;
+        }
+
+        /* 权益图标 */
+        .icon-box {
+            width: 70px; height: 70px; background: linear-gradient(135deg, #fff3cd, #fff);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 30px; color: #b8860b; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        /* 价格条 */
+        .price-section { margin: 30px 0; }
+        .price-lg { font-size: 48px; font-weight: 900; color: #333; line-height: 1; }
+        .price-old { text-decoration: line-through; color: #999; margin-left: 10px; }
+        .tag-save { background: #ffebee; color: #d32f2f; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; vertical-align: middle; }
+
+        /* 对比表 */
+        .compare-table { width: 100%; text-align: left; margin-top: 30px; border-collapse: separate; border-spacing: 0 10px; }
+        .compare-table td { padding: 12px; border-bottom: 1px solid #eee; }
+        .compare-table tr:last-child td { border-bottom: none; }
+        .check-gold { color: #d4af37; font-size: 18px; }
+        .check-grey { color: #eee; font-size: 18px; }
+
+        /* 底部悬浮 */
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 15px 20px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05); display: flex; justify-content: center; z-index: 100;
+        }
+        .btn-unlock {
+            background: linear-gradient(135deg, #1a1a1a 0%, #444 100%); color: #ffd700;
+            border: none; padding: 14px 60px; border-radius: 50px; font-weight: bold; font-size: 18px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: 0.3s; width: 100%; max-width: 500px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-unlock:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(0,0,0,0.3); color: #fff; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar fixed-top navbar-custom px-3">
+        <a href="javascript:history.back()" class="text-dark text-decoration-none fw-bold">
+            <i class="bi bi-x-lg fs-5"></i>
+        </a>
+        <span class="fw-bold">会员中心</span>
+        <span class="text-muted small">帮助</span>
+    </nav>
+
+    <div class="vip-hero">
+        <div class="vip-title">YANHE PRO</div>
+        <p class="opacity-75">解锁方言地图全功能，体验沉浸式文化学习</p>
+    </div>
+
+    <div class="card-container mb-5 pb-5">
+        <div class="benefit-card">
+            <div class="row g-4 mb-4">
+                <div class="col-4">
+                    <div class="icon-box"><i class="bi bi-mic-fill"></i></div>
+                    <div class="fw-bold mb-1">AI 纠音</div>
+                    <div class="small text-muted">无限次评测</div>
+                </div>
+                <div class="col-4">
+                    <div class="icon-box"><i class="bi bi-map-fill"></i></div>
+                    <div class="fw-bold mb-1">全境解锁</div>
+                    <div class="small text-muted">50+ 城市地图</div>
+                </div>
+                <div class="col-4">
+                    <div class="icon-box"><i class="bi bi-trophy-fill"></i></div>
+                    <div class="fw-bold mb-1">生存挑战</div>
+                    <div class="small text-muted">解锁高阶关卡</div>
+                </div>
+            </div>
+
+            <div class="price-section">
+                <span class="tag-save">限时 5 折</span>
+                <div class="mt-2">
+                    <span class="align-top fs-4 fw-bold">¥</span>
+                    <span class="price-lg">98</span>
+                    <span class="fs-5 text-muted">/年</span>
+                    <span class="price-old">¥198</span>
+                </div>
+                <div class="small text-muted mt-1">学生认证专属特惠</div>
+            </div>
+
+            <hr>
+
+            <h6 class="fw-bold mt-4 mb-3 text-start"><i class="bi bi-lightning-charge-fill text-warning"></i> 权益对比</h6>
+            <table class="compare-table">
+                <thead>
+                    <tr class="text-muted small">
+                        <th>功能特权</th>
+                        <th class="text-center">普通用户</th>
+                        <th class="text-center text-dark fw-bold">Pro 会员</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>方言点探索</td>
+                        <td class="text-center">仅限 3 个</td>
+                        <td class="text-center"><i class="bi bi-check-circle-fill check-gold"></i> 无限</td>
+                    </tr>
+                    <tr>
+                        <td>AI 语音评分</td>
+                        <td class="text-center">每天 1 次</td>
+                        <td class="text-center"><i class="bi bi-check-circle-fill check-gold"></i> 无限</td>
+                    </tr>
+                    <tr>
+                        <td>生存挑战模式</td>
+                        <td class="text-center"><i class="bi bi-lock-fill text-muted"></i></td>
+                        <td class="text-center"><i class="bi bi-check-circle-fill check-gold"></i> 解锁</td>
+                    </tr>
+                    <tr>
+                        <td>离线地图下载</td>
+                        <td class="text-center"><i class="bi bi-lock-fill text-muted"></i></td>
+                        <td class="text-center"><i class="bi bi-check-circle-fill check-gold"></i> 支持</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="text-center text-muted small mt-4 mb-5">
+            订阅即代表同意《言禾会员服务协议》<br>
+            资金将通过安全支付渠道处理
+        </p>
+    </div>
+
+    <div class="bottom-bar">
+        <button class="btn-unlock" onclick="location.href='checkout.html?type=membership'">
+            立即解锁权益 <i class="bi bi-arrow-right"></i>
+        </button>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,363 @@
+<html>
+<head>
+<title>story_login.html</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #bcbec4;}
+.s1 { color: #d5b778;}
+.s2 { color: #bababa;}
+.s3 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+story_login.html</font>
+</center></td></tr></table>
+<pre>
+<span class="s1">&lt;!DOCTYPE </span><span class="s2">html</span><span class="s1">&gt;</span>
+<span class="s1">&lt;html </span><span class="s2">lang</span><span class="s3">=&quot;zh-CN&quot;</span><span class="s1">&gt;</span>
+<span class="s1">&lt;head&gt;</span>
+    <span class="s1">&lt;meta </span><span class="s2">charset</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s1">&gt;</span>
+    <span class="s1">&lt;meta </span><span class="s2">name</span><span class="s3">=&quot;viewport&quot; </span><span class="s2">content</span><span class="s3">=&quot;width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no&quot;</span><span class="s1">&gt;</span>
+    <span class="s1">&lt;title&gt;</span><span class="s0">中国故事 - 言禾 YanHe (已登录)</span><span class="s1">&lt;/title&gt;</span>
+    <span class="s1">&lt;link </span><span class="s2">href</span><span class="s3">=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css&quot; </span><span class="s2">rel</span><span class="s3">=&quot;stylesheet&quot;</span><span class="s1">&gt;</span>
+    <span class="s1">&lt;link </span><span class="s2">rel</span><span class="s3">=&quot;stylesheet&quot; </span><span class="s2">href</span><span class="s3">=&quot;https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css&quot;</span><span class="s1">&gt;</span>
+    <span class="s1">&lt;style&gt;</span>
+        <span class="s0">/* --- 1. 基础变量 --- */</span>
+        <span class="s0">:root { --primary: #004aad; --accent: #ff6b00; --bg-light: #f8faff; }</span>
+        <span class="s0">body { font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif; padding-top: 70px; background: var(--bg-light); overflow-y: scroll; }</span>
+
+        <span class="s0">/* --- 2. 导航栏 (登录后) --- */</span>
+        <span class="s0">.navbar-custom { background: rgba(255,255,255,0.95); backdrop-filter: blur(16px); box-shadow: 0 2px 15px rgba(0,0,0,0.04); height: 70px; z-index: 1000; }</span>
+        <span class="s0">.navbar-brand { font-weight: 900; font-size: 1.5rem; letter-spacing: -0.5px; background: linear-gradient(135deg, #004aad 0%, #0078ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }</span>
+        <span class="s0">.nav-link { font-size: 15px; font-weight: 600; color: #555 !important; padding: 8px 18px !important; border-radius: 30px; transition: 0.3s; }</span>
+        <span class="s0">.nav-link:hover { color: var(--primary) !important; background: rgba(0, 74, 173, 0.06); }</span>
+        <span class="s0">.nav-link.active { color: #fff !important; background: var(--primary); box-shadow: 0 4px 10px rgba(0, 74, 173, 0.3); }</span>
+
+        <span class="s0">/* 用户下拉菜单 */</span>
+        <span class="s0">.user-avatar { width: 40px; height: 40px; border: 2px solid var(--primary); padding: 2px; object-fit: cover; }</span>
+        <span class="s0">.dropdown-menu-custom { border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 12px; margin-top: 15px !important; min-width: 220px; padding: 10px; }</span>
+        <span class="s0">.dropdown-menu-custom .dropdown-item { padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #555; transition: 0.2s; }</span>
+        <span class="s0">.dropdown-menu-custom .dropdown-item:hover { background: #f0f7ff; color: var(--primary); }</span>
+        <span class="s0">.dropdown-menu-custom .dropdown-item i { margin-right: 10px; font-size: 16px; vertical-align: middle; }</span>
+
+        <span class="s0">/* --- 3. 顶部吸顶筛选区 (全宽) --- */</span>
+        <span class="s0">.sticky-header-container { position: sticky; top: 70px; z-index: 90; background: rgba(248, 250, 255, 0.98); backdrop-filter: blur(5px); border-bottom: 1px solid rgba(0,0,0,0.03); padding-bottom: 10px; }</span>
+        
+        <span class="s0">/* 移除 max-width，直接 padding 撑开 */</span>
+        <span class="s0">.header-content-wrapper { width: 100%; padding: 0 20px; }</span>
+
+        <span class="s0">.main-tabs { display: flex; justify-content: center; gap: 40px; padding: 12px 0 8px; font-weight: 600; color: #999; }</span>
+        <span class="s0">.tab-item { padding-bottom: 8px; cursor: pointer; position: relative; font-size: 16px; transition: color 0.3s; }</span>
+        <span class="s0">.tab-item:hover { color: #555; }</span>
+        <span class="s0">.tab-item.active { color: #222; font-weight: 800; font-size: 17px; }</span>
+        <span class="s0">.tab-item.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 24px; height: 3px; background: var(--primary); border-radius: 10px; }</span>
+        
+        <span class="s0">.topic-scroll-box { white-space: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 5px; text-align: center; }</span>
+        <span class="s0">.topic-scroll-box::-webkit-scrollbar { display: none; }</span>
+        <span class="s0">.topic-pill { display: inline-block; padding: 6px 16px; margin: 0 5px; border-radius: 20px; background: #fff; border: 1px solid #eee; color: #666; font-size: 13px; text-decoration: none; font-weight: 500; transition: all 0.2s; }</span>
+        <span class="s0">.topic-pill:hover, .topic-pill.active { background: rgba(0, 74, 173, 0.1); border-color: transparent; color: var(--primary); font-weight: bold; }</span>
+
+        <span class="s0">/* --- 4. 瀑布流 (全屏占满布局) --- */</span>
+        <span class="s0">.masonry-wrapper {</span>
+            <span class="s0">width: 98%;        /* 几乎占满，留一点点边距美观 */</span>
+            <span class="s0">margin: 15px auto; /* 上下边距 */</span>
+        <span class="s0">}</span>
+        <span class="s0">.masonry-cols {</span>
+            <span class="s0">column-count: 2; /* 手机 2列 */</span>
+            <span class="s0">column-gap: 12px;</span>
+        <span class="s0">}</span>
+        <span class="s0">/* 响应式断点：屏幕越大列数越多 */</span>
+        <span class="s0">@media (min-width: 576px) { .masonry-cols { column-count: 2; column-gap: 16px; } }</span>
+        <span class="s0">@media (min-width: 768px) { .masonry-cols { column-count: 3; column-gap: 16px; } }</span>
+        <span class="s0">@media (min-width: 992px) { .masonry-cols { column-count: 4; column-gap: 20px; } }</span>
+        <span class="s0">@media (min-width: 1200px) { .masonry-cols { column-count: 5; column-gap: 20px; } }</span>
+        <span class="s0">@media (min-width: 1400px) { .masonry-cols { column-count: 6; column-gap: 24px; } } /* 超大屏6列 */</span>
+        
+        <span class="s0">.pin-card {</span>
+            <span class="s0">break-inside: avoid; display: inline-block; width: 100%;</span>
+            <span class="s0">background: #fff; border-radius: 12px; margin-bottom: 16px; /* 垂直间距 */</span>
+            <span class="s0">box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02);</span>
+            <span class="s0">overflow: hidden; cursor: pointer; transition: transform 0.3s;</span>
+        <span class="s0">}</span>
+        <span class="s0">.pin-card:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }</span>
+        <span class="s0">.pin-img { width: 100%; display: block; object-fit: cover; }</span>
+        <span class="s0">.pin-body { padding: 12px 14px; }</span>
+        <span class="s0">.pin-title { font-size: 14px; font-weight: bold; color: #222; line-height: 1.5; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }</span>
+        
+        <span class="s0">/* 底部互动栏 */</span>
+        <span class="s0">.pin-footer { display: flex; justify-content: space-between; align-items: center; }</span>
+        <span class="s0">.user-box { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; font-weight: 500; }</span>
+        <span class="s0">.like-box { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #888; transition: 0.2s; }</span>
+        <span class="s0">.like-box:hover { color: #ff2442; }</span>
+        <span class="s0">.like-box.liked { color: #ff2442; }</span>
+
+        <span class="s0">/* 悬浮发布按钮 */</span>
+        <span class="s0">.fab {</span>
+            <span class="s0">position: fixed; bottom: 40px; right: 40px;</span>
+            <span class="s0">width: 56px; height: 56px;</span>
+            <span class="s0">background: linear-gradient(135deg, #ff8f00, #ff6b00);</span>
+            <span class="s0">color: #fff; border-radius: 50%;</span>
+            <span class="s0">display: flex; align-items: center; justify-content: center;</span>
+            <span class="s0">font-size: 26px; box-shadow: 0 8px 20px rgba(255, 107, 0, 0.4);</span>
+            <span class="s0">z-index: 100; transition: transform 0.2s; text-decoration: none;</span>
+        <span class="s0">}</span>
+        <span class="s0">.fab:hover { transform: scale(1.1) rotate(90deg); color: #fff; }</span>
+    <span class="s1">&lt;/style&gt;</span>
+<span class="s1">&lt;/head&gt;</span>
+<span class="s1">&lt;body&gt;</span>
+
+    <span class="s1">&lt;nav </span><span class="s2">class</span><span class="s3">=&quot;navbar navbar-expand-lg fixed-top navbar-custom&quot;</span><span class="s1">&gt;</span>
+        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;container-fluid px-4&quot;</span><span class="s1">&gt;</span>
+            <span class="s1">&lt;a </span><span class="s2">class</span><span class="s3">=&quot;navbar-brand&quot; </span><span class="s2">href</span><span class="s3">=&quot;index_login.html&quot;</span><span class="s1">&gt;</span><span class="s0">言禾 YanHe</span><span class="s1">&lt;/a&gt;</span>
+            <span class="s1">&lt;button </span><span class="s2">class</span><span class="s3">=&quot;navbar-toggler border-0 bg-light rounded-circle p-2&quot; </span><span class="s2">type</span><span class="s3">=&quot;button&quot; </span><span class="s2">data-bs-toggle</span><span class="s3">=&quot;collapse&quot; </span><span class="s2">data-bs-target</span><span class="s3">=&quot;#navContent&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-list fs-5&quot;</span><span class="s1">&gt;&lt;/i&gt;</span>
+            <span class="s1">&lt;/button&gt;</span>
+            <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;collapse navbar-collapse&quot; </span><span class="s2">id</span><span class="s3">=&quot;navContent&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;ul </span><span class="s2">class</span><span class="s3">=&quot;navbar-nav mx-auto gap-1&quot;</span><span class="s1">&gt; </span>
+                    <span class="s1">&lt;li </span><span class="s2">class</span><span class="s3">=&quot;nav-item&quot;</span><span class="s1">&gt;&lt;a </span><span class="s2">class</span><span class="s3">=&quot;nav-link&quot; </span><span class="s2">href</span><span class="s3">=&quot;index_login.html&quot;</span><span class="s1">&gt;</span><span class="s0">首页</span><span class="s1">&lt;/a&gt;&lt;/li&gt;</span>
+                    <span class="s1">&lt;li </span><span class="s2">class</span><span class="s3">=&quot;nav-item&quot;</span><span class="s1">&gt;&lt;a </span><span class="s2">class</span><span class="s3">=&quot;nav-link active&quot; </span><span class="s2">href</span><span class="s3">=&quot;story_login.html&quot;</span><span class="s1">&gt;</span><span class="s0">中国故事</span><span class="s1">&lt;/a&gt;&lt;/li&gt;</span>
+                    <span class="s1">&lt;li </span><span class="s2">class</span><span class="s3">=&quot;nav-item&quot;</span><span class="s1">&gt;&lt;a </span><span class="s2">class</span><span class="s3">=&quot;nav-link&quot; </span><span class="s2">href</span><span class="s3">=&quot;education.html&quot;</span><span class="s1">&gt;</span><span class="s0">教育云</span><span class="s1">&lt;/a&gt;&lt;/li&gt;</span>
+                    <span class="s1">&lt;li </span><span class="s2">class</span><span class="s3">=&quot;nav-item&quot;</span><span class="s1">&gt;&lt;a </span><span class="s2">class</span><span class="s3">=&quot;nav-link&quot; </span><span class="s2">href</span><span class="s3">=&quot;service.html&quot;</span><span class="s1">&gt;</span><span class="s0">任务大厅</span><span class="s1">&lt;/a&gt;&lt;/li&gt;</span>
+                    <span class="s1">&lt;li </span><span class="s2">class</span><span class="s3">=&quot;nav-item&quot;</span><span class="s1">&gt;&lt;a </span><span class="s2">class</span><span class="s3">=&quot;nav-link&quot; </span><span class="s2">href</span><span class="s3">=&quot;culture.html&quot;</span><span class="s1">&gt;</span><span class="s0">方言地图</span><span class="s1">&lt;/a&gt;&lt;/li&gt;</span>
+                <span class="s1">&lt;/ul&gt;</span>
+                
+                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;d-flex align-items-center gap-3 mt-3 mt-lg-0&quot;</span><span class="s1">&gt;</span>
+                    <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;index_en.html&quot; </span><span class="s2">class</span><span class="s3">=&quot;btn btn-light rounded-circle shadow-sm border&quot; </span><span class="s2">style</span><span class="s3">=&quot;width: 40px; height: 40px; display:flex; align-items:center; justify-content:center;&quot; </span><span class="s2">title</span><span class="s3">=&quot;Switch to English&quot;</span><span class="s1">&gt;</span>
+                        <span class="s1">&lt;span </span><span class="s2">style</span><span class="s3">=&quot;font-size:12px; font-weight:bold;&quot;</span><span class="s1">&gt;</span><span class="s0">EN</span><span class="s1">&lt;/span&gt;</span>
+                    <span class="s1">&lt;/a&gt;</span>
+                    
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;dropdown&quot;</span><span class="s1">&gt;</span>
+                        <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;#&quot; </span><span class="s2">class</span><span class="s3">=&quot;d-flex align-items-center text-decoration-none dropdown-toggle hide-arrow&quot; </span><span class="s2">id</span><span class="s3">=&quot;userDropdown&quot; </span><span class="s2">data-bs-toggle</span><span class="s3">=&quot;dropdown&quot; </span><span class="s2">aria-expanded</span><span class="s3">=&quot;false&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=100&amp;q=80&quot; </span>
+                                 <span class="s2">alt</span><span class="s3">=&quot;User&quot; </span><span class="s2">class</span><span class="s3">=&quot;rounded-circle user-avatar shadow-sm&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;span </span><span class="s2">class</span><span class="s3">=&quot;d-none d-md-inline ms-2 fw-bold text-dark&quot;</span><span class="s1">&gt;</span><span class="s0">李言禾</span><span class="s1">&lt;/span&gt;</span>
+                        <span class="s1">&lt;/a&gt;</span>
+                        <span class="s1">&lt;ul </span><span class="s2">class</span><span class="s3">=&quot;dropdown-menu dropdown-menu-end dropdown-menu-custom&quot; </span><span class="s2">aria-labelledby</span><span class="s3">=&quot;userDropdown&quot;</span><span class="s1">&gt;</span>
+                             <span class="s1">&lt;li </span><span class="s2">class</span><span class="s3">=&quot;px-3 py-2 border-bottom mb-2&quot;</span><span class="s1">&gt;</span>
+                                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;fw-bold text-dark&quot;</span><span class="s1">&gt;</span><span class="s0">李言禾</span><span class="s1">&lt;/div&gt;</span>
+                                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;small text-muted&quot;</span><span class="s1">&gt;</span><span class="s0">VIP Pro用户</span><span class="s1">&lt;/div&gt;</span>
+                            <span class="s1">&lt;/li&gt;</span>
+                            <span class="s1">&lt;li&gt;&lt;a </span><span class="s2">class</span><span class="s3">=&quot;dropdown-item&quot; </span><span class="s2">href</span><span class="s3">=&quot;profile.html&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-person-badge&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">个人主页</span><span class="s1">&lt;/a&gt;&lt;/li&gt;</span>
+                            <span class="s1">&lt;li&gt;&lt;a </span><span class="s2">class</span><span class="s3">=&quot;dropdown-item&quot; </span><span class="s2">href</span><span class="s3">=&quot;profile.html&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-star&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">我的收藏</span><span class="s1">&lt;/a&gt;&lt;/li&gt;</span>
+                            <span class="s1">&lt;li&gt;&lt;a </span><span class="s2">class</span><span class="s3">=&quot;dropdown-item&quot; </span><span class="s2">href</span><span class="s3">=&quot;profile.html&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-heart&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">我的点赞</span><span class="s1">&lt;/a&gt;&lt;/li&gt;</span>
+                            <span class="s1">&lt;li&gt;&lt;a </span><span class="s2">class</span><span class="s3">=&quot;dropdown-item&quot; </span><span class="s2">href</span><span class="s3">=&quot;profile.html&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-mortarboard&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">正在学习</span><span class="s1">&lt;/a&gt;&lt;/li&gt;</span>
+                            <span class="s1">&lt;li&gt;&lt;hr </span><span class="s2">class</span><span class="s3">=&quot;dropdown-divider&quot;</span><span class="s1">&gt;&lt;/li&gt;</span>
+                            <span class="s1">&lt;li&gt;&lt;a </span><span class="s2">class</span><span class="s3">=&quot;dropdown-item text-danger&quot; </span><span class="s2">href</span><span class="s3">=&quot;index.html&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-box-arrow-right&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">退出登录</span><span class="s1">&lt;/a&gt;&lt;/li&gt;</span>
+                        <span class="s1">&lt;/ul&gt;</span>
+                    <span class="s1">&lt;/div&gt;</span>
+                <span class="s1">&lt;/div&gt;</span>
+
+            <span class="s1">&lt;/div&gt;</span>
+        <span class="s1">&lt;/div&gt;</span>
+    <span class="s1">&lt;/nav&gt;</span>
+
+    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;sticky-header-container&quot;</span><span class="s1">&gt;</span>
+        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;header-content-wrapper&quot;</span><span class="s1">&gt;</span>
+            <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;main-tabs&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;tab-item&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;switchMainTab(this, 'follow')&quot;</span><span class="s1">&gt;</span><span class="s0">关注</span><span class="s1">&lt;/div&gt;</span>
+                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;tab-item active&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;switchMainTab(this, 'discover')&quot;</span><span class="s1">&gt;</span><span class="s0">发现</span><span class="s1">&lt;/div&gt;</span>
+                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;tab-item&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;getLocation(this)&quot;</span><span class="s1">&gt;</span><span class="s0">同城 </span><span class="s1">&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-geo-alt-fill&quot; </span><span class="s2">style</span><span class="s3">=&quot;font-size:12px;&quot;</span><span class="s1">&gt;&lt;/i&gt;&lt;/div&gt;</span>
+            <span class="s1">&lt;/div&gt;</span>
+            
+            <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;topic-scroll-box&quot; </span><span class="s2">id</span><span class="s3">=&quot;tagList&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;#&quot; </span><span class="s2">class</span><span class="s3">=&quot;topic-pill active&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;filterTag(this)&quot;</span><span class="s1">&gt;</span><span class="s0">全部推荐</span><span class="s1">&lt;/a&gt;</span>
+                <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;#&quot; </span><span class="s2">class</span><span class="s3">=&quot;topic-pill&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;filterTag(this)&quot;</span><span class="s1">&gt;</span><span class="s0">#网络热梗</span><span class="s1">&lt;/a&gt;</span>
+                <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;#&quot; </span><span class="s2">class</span><span class="s3">=&quot;topic-pill&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;filterTag(this)&quot;</span><span class="s1">&gt;</span><span class="s0">#留学生汉语角</span><span class="s1">&lt;/a&gt;</span>
+                <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;#&quot; </span><span class="s2">class</span><span class="s3">=&quot;topic-pill&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;filterTag(this)&quot;</span><span class="s1">&gt;</span><span class="s0">#汉服打卡</span><span class="s1">&lt;/a&gt;</span>
+                <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;#&quot; </span><span class="s2">class</span><span class="s3">=&quot;topic-pill&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;filterTag(this)&quot;</span><span class="s1">&gt;</span><span class="s0">#中华美食</span><span class="s1">&lt;/a&gt;</span>
+                <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;#&quot; </span><span class="s2">class</span><span class="s3">=&quot;topic-pill&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;filterTag(this)&quot;</span><span class="s1">&gt;</span><span class="s0">#HSK备考</span><span class="s1">&lt;/a&gt;</span>
+                <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;#&quot; </span><span class="s2">class</span><span class="s3">=&quot;topic-pill&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;filterTag(this)&quot;</span><span class="s1">&gt;</span><span class="s0">#中国方言</span><span class="s1">&lt;/a&gt;</span>
+                <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;#&quot; </span><span class="s2">class</span><span class="s3">=&quot;topic-pill&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;filterTag(this)&quot;</span><span class="s1">&gt;</span><span class="s0">#城市漫步</span><span class="s1">&lt;/a&gt;</span>
+                <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;#&quot; </span><span class="s2">class</span><span class="s3">=&quot;topic-pill&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;filterTag(this)&quot;</span><span class="s1">&gt;</span><span class="s0">#书法体验</span><span class="s1">&lt;/a&gt;</span>
+                <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;#&quot; </span><span class="s2">class</span><span class="s3">=&quot;topic-pill&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;filterTag(this)&quot;</span><span class="s1">&gt;</span><span class="s0">#中国历史</span><span class="s1">&lt;/a&gt;</span>
+            <span class="s1">&lt;/div&gt;</span>
+        <span class="s1">&lt;/div&gt;</span>
+    <span class="s1">&lt;/div&gt;</span>
+
+    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;masonry-wrapper&quot;</span><span class="s1">&gt;</span>
+        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;masonry-cols&quot; </span><span class="s2">id</span><span class="s3">=&quot;masonryContent&quot;</span><span class="s1">&gt;</span>
+            
+            <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-card&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;location.href='story_detail.html'&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://images.unsplash.com/photo-1543165365-07232fe12224?w=500&amp;q=80&quot; </span><span class="s2">class</span><span class="s3">=&quot;pin-img&quot; </span><span class="s2">style</span><span class="s3">=&quot;aspect-ratio: 3/4;&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-body&quot;</span><span class="s1">&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-title&quot;</span><span class="s1">&gt;</span><span class="s0">穿着汉服去上课是什么体验？老师都惊呆了！📸✨</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-footer&quot;</span><span class="s1">&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;user-box&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://api.dicebear.com/7.x/avataaars/svg?seed=Lily&quot; </span><span class="s2">class</span><span class="s3">=&quot;rounded-circle&quot; </span><span class="s2">width</span><span class="s3">=&quot;20&quot; </span><span class="s2">height</span><span class="s3">=&quot;20&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;span&gt;</span><span class="s0">小雅_Hanfu</span><span class="s1">&lt;/span&gt;</span>
+                        <span class="s1">&lt;/div&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;like-box liked&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;event.stopPropagation(); toggleLike(this)&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-heart-fill&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">2.1w</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;/div&gt;</span>
+                <span class="s1">&lt;/div&gt;</span>
+            <span class="s1">&lt;/div&gt;</span>
+
+            <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-card&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;location.href='story_detail.html'&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://images.unsplash.com/photo-1563245372-f21720e38c4d?w=500&amp;q=80&quot; </span><span class="s2">class</span><span class="s3">=&quot;pin-img&quot; </span><span class="s2">style</span><span class="s3">=&quot;aspect-ratio: 3/5;&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-body&quot;</span><span class="s1">&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-title&quot;</span><span class="s1">&gt;</span><span class="s0">挑战全网最辣火锅！重庆微辣真的不是开玩笑的🌶️🔥</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-footer&quot;</span><span class="s1">&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;user-box&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://api.dicebear.com/7.x/avataaars/svg?seed=Mike&quot; </span><span class="s2">class</span><span class="s3">=&quot;rounded-circle&quot; </span><span class="s2">width</span><span class="s3">=&quot;20&quot; </span><span class="s2">height</span><span class="s3">=&quot;20&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;span&gt;</span><span class="s0">Mike_Eats</span><span class="s1">&lt;/span&gt;</span>
+                        <span class="s1">&lt;/div&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;like-box&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;event.stopPropagation(); toggleLike(this)&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-heart&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">3.4k</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;/div&gt;</span>
+                <span class="s1">&lt;/div&gt;</span>
+            <span class="s1">&lt;/div&gt;</span>
+
+            <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-card&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;location.href='story_detail.html'&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;div </span><span class="s2">style</span><span class="s3">=&quot;position:relative;&quot;</span><span class="s1">&gt;</span>
+                    <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=500&amp;q=80&quot; </span><span class="s2">class</span><span class="s3">=&quot;pin-img&quot; </span><span class="s2">style</span><span class="s3">=&quot;aspect-ratio: 16/9;&quot;</span><span class="s1">&gt;</span>
+                    <span class="s1">&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-play-circle-fill text-white&quot; </span><span class="s2">style</span><span class="s3">=&quot;position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:40px; text-shadow:0 2px 10px rgba(0,0,0,0.5);&quot;</span><span class="s1">&gt;&lt;/i&gt;</span>
+                <span class="s1">&lt;/div&gt;</span>
+                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-body&quot;</span><span class="s1">&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-title&quot;</span><span class="s1">&gt;</span><span class="s0">东北话教学：你看那个人贼拉风！(视频版)</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-footer&quot;</span><span class="s1">&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;user-box&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://api.dicebear.com/7.x/avataaars/svg?seed=Alex&quot; </span><span class="s2">class</span><span class="s3">=&quot;rounded-circle&quot; </span><span class="s2">width</span><span class="s3">=&quot;20&quot; </span><span class="s2">height</span><span class="s3">=&quot;20&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;span&gt;</span><span class="s0">Alex在东北</span><span class="s1">&lt;/span&gt;</span>
+                        <span class="s1">&lt;/div&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;like-box&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-heart&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">122</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;/div&gt;</span>
+                <span class="s1">&lt;/div&gt;</span>
+            <span class="s1">&lt;/div&gt;</span>
+
+            <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-card&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;location.href='story_detail.html'&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&amp;q=80&quot; </span><span class="s2">class</span><span class="s3">=&quot;pin-img&quot; </span><span class="s2">style</span><span class="s3">=&quot;aspect-ratio: 1/1;&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-body&quot;</span><span class="s1">&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-title&quot;</span><span class="s1">&gt;</span><span class="s0">HSK 6级写作万能模版，背完这10句直接过！📚</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-footer&quot;</span><span class="s1">&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;user-box&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://api.dicebear.com/7.x/avataaars/svg?seed=Teacher&quot; </span><span class="s2">class</span><span class="s3">=&quot;rounded-circle&quot; </span><span class="s2">width</span><span class="s3">=&quot;20&quot; </span><span class="s2">height</span><span class="s3">=&quot;20&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;span&gt;</span><span class="s0">中文王老师</span><span class="s1">&lt;/span&gt;</span>
+                        <span class="s1">&lt;/div&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;like-box&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-heart&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">5k</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;/div&gt;</span>
+                <span class="s1">&lt;/div&gt;</span>
+            <span class="s1">&lt;/div&gt;</span>
+            
+            <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-card&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;location.href='story_detail.html'&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://images.unsplash.com/photo-1514565131-fce0801e5785?w=500&amp;q=80&quot; </span><span class="s2">class</span><span class="s3">=&quot;pin-img&quot; </span><span class="s2">style</span><span class="s3">=&quot;aspect-ratio: 4/3;&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-body&quot;</span><span class="s1">&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-title&quot;</span><span class="s1">&gt;</span><span class="s0">周末同城活动：去胡同里学剪纸✂️</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-footer&quot;</span><span class="s1">&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;user-box&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://api.dicebear.com/7.x/avataaars/svg?seed=Art&quot; </span><span class="s2">class</span><span class="s3">=&quot;rounded-circle&quot; </span><span class="s2">width</span><span class="s3">=&quot;20&quot; </span><span class="s2">height</span><span class="s3">=&quot;20&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;span&gt;</span><span class="s0">ArtClub</span><span class="s1">&lt;/span&gt;</span>
+                        <span class="s1">&lt;/div&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;like-box&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-heart&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">45</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;/div&gt;</span>
+                <span class="s1">&lt;/div&gt;</span>
+            <span class="s1">&lt;/div&gt;</span>
+
+             <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-card&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;location.href='story_detail.html'&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://images.unsplash.com/photo-1555685812-4b943f3db990?w=500&amp;q=80&quot; </span><span class="s2">class</span><span class="s3">=&quot;pin-img&quot; </span><span class="s2">style</span><span class="s3">=&quot;aspect-ratio: 3/4;&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-body&quot;</span><span class="s1">&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-title&quot;</span><span class="s1">&gt;</span><span class="s0">我的中国室友教我打麻将，太复杂了！🀄️</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-footer&quot;</span><span class="s1">&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;user-box&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://api.dicebear.com/7.x/avataaars/svg?seed=Tom&quot; </span><span class="s2">class</span><span class="s3">=&quot;rounded-circle&quot; </span><span class="s2">width</span><span class="s3">=&quot;20&quot; </span><span class="s2">height</span><span class="s3">=&quot;20&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;span&gt;</span><span class="s0">Tom</span><span class="s1">&lt;/span&gt;</span>
+                        <span class="s1">&lt;/div&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;like-box&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-heart&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">3.2w</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;/div&gt;</span>
+                <span class="s1">&lt;/div&gt;</span>
+            <span class="s1">&lt;/div&gt;</span>
+
+            <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-card&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;location.href='story_detail.html'&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=500&amp;q=80&quot; </span><span class="s2">class</span><span class="s3">=&quot;pin-img&quot; </span><span class="s2">style</span><span class="s3">=&quot;aspect-ratio: 1/1;&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-body&quot;</span><span class="s1">&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-title&quot;</span><span class="s1">&gt;</span><span class="s0">瑞士留学生：我为什么选择来中国留学？🇨🇭🇨🇳</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-footer&quot;</span><span class="s1">&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;user-box&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah&quot; </span><span class="s2">class</span><span class="s3">=&quot;rounded-circle&quot; </span><span class="s2">width</span><span class="s3">=&quot;20&quot; </span><span class="s2">height</span><span class="s3">=&quot;20&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;span&gt;</span><span class="s0">Sarah</span><span class="s1">&lt;/span&gt;</span>
+                        <span class="s1">&lt;/div&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;like-box&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-heart&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">560</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;/div&gt;</span>
+                <span class="s1">&lt;/div&gt;</span>
+            <span class="s1">&lt;/div&gt;</span>
+
+            <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-card&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;location.href='story_detail.html'&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500&amp;q=80&quot; </span><span class="s2">class</span><span class="s3">=&quot;pin-img&quot; </span><span class="s2">style</span><span class="s3">=&quot;aspect-ratio: 16/9;&quot;</span><span class="s1">&gt;</span>
+                <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-body&quot;</span><span class="s1">&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-title&quot;</span><span class="s1">&gt;</span><span class="s0">跟好朋友一起去爬长城，腿都要断了！🏃‍♀️</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;pin-footer&quot;</span><span class="s1">&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;user-box&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;img </span><span class="s2">src</span><span class="s3">=&quot;https://api.dicebear.com/7.x/avataaars/svg?seed=Friends&quot; </span><span class="s2">class</span><span class="s3">=&quot;rounded-circle&quot; </span><span class="s2">width</span><span class="s3">=&quot;20&quot; </span><span class="s2">height</span><span class="s3">=&quot;20&quot;</span><span class="s1">&gt;</span>
+                            <span class="s1">&lt;span&gt;</span><span class="s0">Besties</span><span class="s1">&lt;/span&gt;</span>
+                        <span class="s1">&lt;/div&gt;</span>
+                        <span class="s1">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;like-box&quot;</span><span class="s1">&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-heart&quot;</span><span class="s1">&gt;&lt;/i&gt; </span><span class="s0">1.1w</span><span class="s1">&lt;/div&gt;</span>
+                    <span class="s1">&lt;/div&gt;</span>
+                <span class="s1">&lt;/div&gt;</span>
+            <span class="s1">&lt;/div&gt;</span>
+
+        <span class="s1">&lt;/div&gt;</span>
+    <span class="s1">&lt;/div&gt;</span>
+
+    <span class="s1">&lt;div </span><span class="s2">style</span><span class="s3">=&quot;height: 80px;&quot;</span><span class="s1">&gt;&lt;/div&gt;</span>
+
+    <span class="s1">&lt;a </span><span class="s2">href</span><span class="s3">=&quot;story_publish.html&quot; </span><span class="s2">class</span><span class="s3">=&quot;fab shadow&quot; </span><span class="s2">title</span><span class="s3">=&quot;发布笔记&quot;</span><span class="s1">&gt;</span>
+        <span class="s1">&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-plus-lg&quot;</span><span class="s1">&gt;&lt;/i&gt;</span>
+    <span class="s1">&lt;/a&gt;</span>
+
+    <span class="s1">&lt;script </span><span class="s2">src</span><span class="s3">=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js&quot;</span><span class="s1">&gt;&lt;/script&gt;</span>
+    <span class="s1">&lt;script&gt;</span>
+        <span class="s0">// 1. Tab 切换逻辑</span>
+        <span class="s0">function switchMainTab(el, type) {</span>
+            <span class="s0">document.querySelectorAll('.tab-item').forEach(t =&gt; t.classList.remove('active'));</span>
+            <span class="s0">el.classList.add('active');</span>
+            
+            <span class="s0">if(type === 'follow') {</span>
+                <span class="s0">console.log('Switched to Following');</span>
+            <span class="s0">} else if (type === 'discover') {</span>
+            <span class="s0">}</span>
+        <span class="s0">}</span>
+
+        <span class="s0">// 2. 定位功能</span>
+        <span class="s0">function getLocation(el) {</span>
+            <span class="s0">document.querySelectorAll('.tab-item').forEach(t =&gt; t.classList.remove('active'));</span>
+            <span class="s0">el.classList.add('active');</span>
+            
+            <span class="s0">if (navigator.geolocation) {</span>
+                <span class="s0">const originalText = el.innerHTML;</span>
+                <span class="s0">el.innerHTML = '定位中... &lt;span class=&quot;spinner-border spinner-border-sm&quot; role=&quot;status&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;';</span>
+                
+                <span class="s0">setTimeout(() =&gt; {</span>
+                    <span class="s0">el.innerHTML = '北京 &lt;i class=&quot;bi bi-geo-alt-fill text-primary&quot;&gt;&lt;/i&gt;';</span>
+                    <span class="s0">alert('已定位到：北京。为您展示同城帖子。');</span>
+                <span class="s0">}, 1000);</span>
+            <span class="s0">} else {</span>
+                <span class="s0">alert(&quot;您的浏览器不支持定位&quot;);</span>
+            <span class="s0">}</span>
+        <span class="s0">}</span>
+
+        <span class="s0">// 3. 标签筛选</span>
+        <span class="s0">function filterTag(el) {</span>
+            <span class="s0">document.querySelectorAll('.topic-pill').forEach(p =&gt; p.classList.remove('active'));</span>
+            <span class="s0">el.classList.add('active');</span>
+            <span class="s0">console.log(&quot;Filtering by: &quot; + el.innerText);</span>
+        <span class="s0">}</span>
+
+        <span class="s0">// 4. 列表页快速点赞</span>
+        <span class="s0">function toggleLike(el) {</span>
+            <span class="s0">el.classList.toggle('liked');</span>
+            <span class="s0">let icon = el.querySelector('i');</span>
+            <span class="s0">if(el.classList.contains('liked')) {</span>
+                <span class="s0">icon.classList.remove('bi-heart');</span>
+                <span class="s0">icon.classList.add('bi-heart-fill');</span>
+            <span class="s0">} else {</span>
+                <span class="s0">icon.classList.remove('bi-heart-fill');</span>
+                <span class="s0">icon.classList.add('bi-heart');</span>
+            <span class="s0">}</span>
+        <span class="s0">}</span>
+    <span class="s1">&lt;/script&gt;</span>
+<span class="s1">&lt;/body&gt;</span>
+<span class="s1">&lt;/html&gt;</span>
+
+<span class="s0">```</span></pre>
+</body>
+</html>

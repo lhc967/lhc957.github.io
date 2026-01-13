@@ -1,0 +1,129 @@
+<html>
+<head>
+<title>story_publish.html</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #d5b778;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bababa;}
+.s3 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+story_publish.html</font>
+</center></td></tr></table>
+<pre><span class="s0">&lt;!DOCTYPE </span><span class="s2">html</span><span class="s0">&gt;</span>
+<span class="s0">&lt;html </span><span class="s2">lang</span><span class="s3">=&quot;zh-CN&quot;</span><span class="s0">&gt;</span>
+<span class="s0">&lt;head&gt;</span>
+    <span class="s0">&lt;meta </span><span class="s2">charset</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">&gt;</span>
+    <span class="s0">&lt;meta </span><span class="s2">name</span><span class="s3">=&quot;viewport&quot; </span><span class="s2">content</span><span class="s3">=&quot;width=device-width, initial-scale=1.0&quot;</span><span class="s0">&gt;</span>
+    <span class="s0">&lt;title&gt;</span><span class="s1">发布笔记 - 言禾故事</span><span class="s0">&lt;/title&gt;</span>
+    <span class="s0">&lt;link </span><span class="s2">href</span><span class="s3">=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css&quot; </span><span class="s2">rel</span><span class="s3">=&quot;stylesheet&quot;</span><span class="s0">&gt;</span>
+    <span class="s0">&lt;link </span><span class="s2">rel</span><span class="s3">=&quot;stylesheet&quot; </span><span class="s2">href</span><span class="s3">=&quot;https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css&quot;</span><span class="s0">&gt;</span>
+    <span class="s0">&lt;style&gt;</span>
+        <span class="s1">body { background: #fff; padding-top: 70px; }</span>
+        <span class="s1">.publish-container { max-width: 900px; margin: 30px auto; padding: 20px; }</span>
+
+        <span class="s1">/* 上传区域 */</span>
+        <span class="s1">.upload-area {</span>
+            <span class="s1">border: 2px dashed #ddd; border-radius: 12px; height: 300px;</span>
+            <span class="s1">display: flex; flex-direction: column; align-items: center; justify-content: center;</span>
+            <span class="s1">color: #999; cursor: pointer; transition: 0.3s; background: #fafafa;</span>
+        <span class="s1">}</span>
+        <span class="s1">.upload-area:hover { border-color: #004aad; background: #f0f7ff; color: #004aad; }</span>
+        <span class="s1">.preview-img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; display: none; }</span>
+
+        <span class="s1">/* 表单样式 */</span>
+        <span class="s1">.form-control-lg { font-weight: bold; border: none; border-bottom: 1px solid #eee; border-radius: 0; padding-left: 0; }</span>
+        <span class="s1">.form-control-lg:focus { box-shadow: none; border-bottom-color: #004aad; }</span>
+        <span class="s1">.form-control-text { border: none; padding-left: 0; resize: none; }</span>
+        <span class="s1">.form-control-text:focus { box-shadow: none; }</span>
+
+        <span class="s1">.tag-badge { background: #f0f2f5; color: #333; padding: 6px 12px; border-radius: 20px; font-size: 13px; margin-right: 8px; cursor: pointer; }</span>
+        <span class="s1">.tag-badge.selected { background: #e3f2fd; color: #004aad; font-weight: bold; }</span>
+
+        <span class="s1">.list-group-item { border: none; border-bottom: 1px solid #f5f5f5; padding: 15px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #333; }</span>
+        <span class="s1">.list-group-item:hover { color: #004aad; }</span>
+    <span class="s0">&lt;/style&gt;</span>
+<span class="s0">&lt;/head&gt;</span>
+<span class="s0">&lt;body&gt;</span>
+    <span class="s0">&lt;nav </span><span class="s2">class</span><span class="s3">=&quot;navbar navbar-expand-lg fixed-top bg-white border-bottom&quot;</span><span class="s0">&gt;</span>
+        <span class="s0">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;container px-4&quot;</span><span class="s0">&gt;</span>
+            <span class="s0">&lt;a </span><span class="s2">class</span><span class="s3">=&quot;navbar-brand text-secondary&quot; </span><span class="s2">href</span><span class="s3">=&quot;story_login.html&quot;</span><span class="s0">&gt;</span><span class="s1">取消</span><span class="s0">&lt;/a&gt;</span>
+            <span class="s0">&lt;span </span><span class="s2">class</span><span class="s3">=&quot;fw-bold&quot;</span><span class="s0">&gt;</span><span class="s1">发布图文/视频</span><span class="s0">&lt;/span&gt;</span>
+            <span class="s0">&lt;button </span><span class="s2">class</span><span class="s3">=&quot;btn btn-primary rounded-pill px-4&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;alert('发布成功！审核通过后将展示。'); location.href='story_login.html'&quot;</span><span class="s0">&gt;</span><span class="s1">发布</span><span class="s0">&lt;/button&gt;</span>
+        <span class="s0">&lt;/div&gt;</span>
+    <span class="s0">&lt;/nav&gt;</span>
+
+    <span class="s0">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;publish-container&quot;</span><span class="s0">&gt;</span>
+        <span class="s0">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;row&quot;</span><span class="s0">&gt;</span>
+            <span class="s0">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;col-md-5 mb-4&quot;</span><span class="s0">&gt;</span>
+                <span class="s0">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;upload-area&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;document.getElementById('fileInput').click()&quot;</span><span class="s0">&gt;</span>
+                    <span class="s0">&lt;input </span><span class="s2">type</span><span class="s3">=&quot;file&quot; </span><span class="s2">id</span><span class="s3">=&quot;fileInput&quot; </span><span class="s2">hidden onchange</span><span class="s3">=&quot;previewFile(this)&quot;</span><span class="s0">&gt;</span>
+                    <span class="s0">&lt;img </span><span class="s2">id</span><span class="s3">=&quot;preview&quot; </span><span class="s2">class</span><span class="s3">=&quot;preview-img&quot;</span><span class="s0">&gt;</span>
+                    <span class="s0">&lt;div </span><span class="s2">id</span><span class="s3">=&quot;uploadPrompt&quot;</span><span class="s0">&gt;</span>
+                        <span class="s0">&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-cloud-arrow-up fs-1&quot;</span><span class="s0">&gt;&lt;/i&gt;</span>
+                        <span class="s0">&lt;p </span><span class="s2">class</span><span class="s3">=&quot;mt-2&quot;</span><span class="s0">&gt;</span><span class="s1">拖拽或点击上传图片/视频</span><span class="s0">&lt;/p&gt;</span>
+                        <span class="s0">&lt;small&gt;</span><span class="s1">支持 JPG, PNG, MP4</span><span class="s0">&lt;/small&gt;</span>
+                    <span class="s0">&lt;/div&gt;</span>
+                <span class="s0">&lt;/div&gt;</span>
+            <span class="s0">&lt;/div&gt;</span>
+
+            <span class="s0">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;col-md-7&quot;</span><span class="s0">&gt;</span>
+                <span class="s0">&lt;input </span><span class="s2">type</span><span class="s3">=&quot;text&quot; </span><span class="s2">class</span><span class="s3">=&quot;form-control form-control-lg mb-3&quot; </span><span class="s2">placeholder</span><span class="s3">=&quot;填写标题会有更多赞哦～&quot;</span><span class="s0">&gt;</span>
+                <span class="s0">&lt;textarea </span><span class="s2">class</span><span class="s3">=&quot;form-control form-control-text mb-4&quot; </span><span class="s2">rows</span><span class="s3">=&quot;6&quot; </span><span class="s2">placeholder</span><span class="s3">=&quot;分享你此刻的想法...&quot;</span><span class="s0">&gt;&lt;/textarea&gt;</span>
+
+                <span class="s0">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;mb-4&quot;</span><span class="s0">&gt;</span>
+                    <span class="s0">&lt;p </span><span class="s2">class</span><span class="s3">=&quot;small text-muted mb-2&quot;</span><span class="s0">&gt;</span><span class="s1">添加话题</span><span class="s0">&lt;/p&gt;</span>
+                    <span class="s0">&lt;div </span><span class="s2">class</span><span class="s3">=&quot;d-flex flex-wrap gap-2&quot;</span><span class="s0">&gt;</span>
+                        <span class="s0">&lt;span </span><span class="s2">class</span><span class="s3">=&quot;tag-badge&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;this.classList.toggle('selected')&quot;</span><span class="s0">&gt;</span><span class="s1"># 留学生日常</span><span class="s0">&lt;/span&gt;</span>
+                        <span class="s0">&lt;span </span><span class="s2">class</span><span class="s3">=&quot;tag-badge&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;this.classList.toggle('selected')&quot;</span><span class="s0">&gt;</span><span class="s1"># 中国美食</span><span class="s0">&lt;/span&gt;</span>
+                        <span class="s0">&lt;span </span><span class="s2">class</span><span class="s3">=&quot;tag-badge&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;this.classList.toggle('selected')&quot;</span><span class="s0">&gt;</span><span class="s1"># 汉语学习</span><span class="s0">&lt;/span&gt;</span>
+                        <span class="s0">&lt;span </span><span class="s2">class</span><span class="s3">=&quot;tag-badge&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;this.classList.toggle('selected')&quot;</span><span class="s0">&gt;</span><span class="s1"># 北京探店</span><span class="s0">&lt;/span&gt;</span>
+                    <span class="s0">&lt;/div&gt;</span>
+                <span class="s0">&lt;/div&gt;</span>
+
+                <span class="s0">&lt;ul </span><span class="s2">class</span><span class="s3">=&quot;list-group&quot;</span><span class="s0">&gt;</span>
+                    <span class="s0">&lt;li </span><span class="s2">class</span><span class="s3">=&quot;list-group-item&quot; </span><span class="s2">onclick</span><span class="s3">=&quot;getLocation()&quot;</span><span class="s0">&gt;</span>
+                        <span class="s0">&lt;span&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-geo-alt me-2&quot;</span><span class="s0">&gt;&lt;/i&gt; </span><span class="s1">添加地点</span><span class="s0">&lt;/span&gt;</span>
+                        <span class="s0">&lt;span </span><span class="s2">class</span><span class="s3">=&quot;text-muted small&quot; </span><span class="s2">id</span><span class="s3">=&quot;locationText&quot;</span><span class="s0">&gt;&lt;/span&gt;</span>
+                        <span class="s0">&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-chevron-right small text-muted&quot;</span><span class="s0">&gt;&lt;/i&gt;</span>
+                    <span class="s0">&lt;/li&gt;</span>
+                    <span class="s0">&lt;li </span><span class="s2">class</span><span class="s3">=&quot;list-group-item&quot;</span><span class="s0">&gt;</span>
+                        <span class="s0">&lt;span&gt;&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-globe me-2&quot;</span><span class="s0">&gt;&lt;/i&gt; </span><span class="s1">谁可以看</span><span class="s0">&lt;/span&gt;</span>
+                        <span class="s0">&lt;span </span><span class="s2">class</span><span class="s3">=&quot;text-muted small&quot;</span><span class="s0">&gt;</span><span class="s1">公开</span><span class="s0">&lt;/span&gt;</span>
+                        <span class="s0">&lt;i </span><span class="s2">class</span><span class="s3">=&quot;bi bi-chevron-right small text-muted&quot;</span><span class="s0">&gt;&lt;/i&gt;</span>
+                    <span class="s0">&lt;/li&gt;</span>
+                <span class="s0">&lt;/ul&gt;</span>
+            <span class="s0">&lt;/div&gt;</span>
+        <span class="s0">&lt;/div&gt;</span>
+    <span class="s0">&lt;/div&gt;</span>
+
+    <span class="s0">&lt;script&gt;</span>
+        <span class="s1">function previewFile(input) {</span>
+            <span class="s1">const file = input.files[0];</span>
+            <span class="s1">if (file) {</span>
+                <span class="s1">const reader = new FileReader();</span>
+                <span class="s1">reader.onload = function(e) {</span>
+                    <span class="s1">document.getElementById('preview').src = e.target.result;</span>
+                    <span class="s1">document.getElementById('preview').style.display = 'block';</span>
+                    <span class="s1">document.getElementById('uploadPrompt').style.display = 'none';</span>
+                <span class="s1">}</span>
+                <span class="s1">reader.readAsDataURL(file);</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span>
+
+        <span class="s1">function getLocation() {</span>
+            <span class="s1">document.getElementById('locationText').innerText = &quot;定位中...&quot;;</span>
+            <span class="s1">setTimeout(() =&gt; {</span>
+                <span class="s1">document.getElementById('locationText').innerText = &quot;北京体育大学 · 海淀区&quot;;</span>
+            <span class="s1">}, 1000);</span>
+        <span class="s1">}</span>
+    <span class="s0">&lt;/script&gt;</span>
+<span class="s0">&lt;/body&gt;</span>
+<span class="s0">&lt;/html&gt;</span></pre>
+</body>
+</html>
